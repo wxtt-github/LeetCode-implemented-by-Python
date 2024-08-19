@@ -441,22 +441,119 @@ class Solution:
 
 ### 滑动窗口
 
+> 与相向双指针对应，其实滑动窗口可以理解为同向双指针
+
 1. [209. 长度最小的子数组](https://leetcode.cn/problems/minimum-size-subarray-sum/)
 
 ```python
+"""
+思路：滑动窗口思想，核心思想是当序列和满足>=target时，要将left右移，直到不满足>=target，
+当不满足时，要将right右移直到满足>=target
 
+时间复杂度：O(n)
+空间复杂度：O(1)
+"""
+class Solution:
+    def minSubArrayLen(self, target: int, nums: List[int]) -> int:
+        ans = len(nums) + 1
+        left = 0
+        s = 0
+        # 写法一
+        for right, x in enumerate(nums):
+            s += x
+            while s >= target:
+                ans = min(ans, right - left + 1)
+                s -= nums[left]
+                left += 1
+
+        # # 写法二
+        # for right, x in enumerate(nums):
+        #     s += x
+        #     while s - nums[left] >= target:
+        #         s -= nums[left]
+        #         left += 1
+        #     if s >= target:
+        #         ans = min(ans, right - left + 1)
+
+        # # 写法三
+        # right = 0
+        # while left <= right and right <= len(nums):
+        #     if s < target and right < len(nums):
+        #         s += nums[right]
+        #         right += 1
+        #     elif s < target and right == len(nums):
+        #         break
+        #     else:
+        #         ans = min(ans, right - left)
+        #         s -= nums[left]
+        #         left += 1
+
+        if ans == len(nums) + 1:
+            return 0
+        else:
+            return ans
 ```
 
 2. [3. 无重复字符的最长子串](https://leetcode.cn/problems/longest-substring-without-repeating-characters/)
 
 ```python
+"""
+思路：
+考虑一般化的情况，当已有一个无重复子串时，在其后面添加一个字符ch，他可能会导致不满足无重复了，
+而且一定是由ch这个字符的重复导致的问题，那么当遇到这种情况时，我们需要一直右移left，直到
+ch这个字符的出现次数仅为1，而当我们正常添加了一个无重复的字符时，则计算其长度并与ans比较，
+right右移，这里用遍历，就相当于right一直在右移了。
 
+时间复杂度：O(n)。左右指针最多各移动n次。
+空间复杂度：O(1)。尽管使用了哈希表，但是这题的字符个数是有限的。
+"""
+class Solution:
+    def lengthOfLongestSubstring(self, s: str) -> int:
+        ans = 0
+        left = 0
+        cnt = dict()
+        for right, ch in enumerate(s):
+            if ch not in cnt:
+                cnt[ch] = 1
+            else:
+                cnt[ch] += 1
+            while cnt[ch] > 1:
+                cnt[s[left]] -= 1
+                left += 1
+            ans = max(ans, right - left + 1)
+        return ans
 ```
 
 3. [713. 乘积小于 K 的子数组](https://leetcode.cn/problems/subarray-product-less-than-k/)
 
 ```python
+"""
+思路：
+滑动窗口思想，需要注意计算ans时不是加1，而是加上right-left+1。为什么是r-l+1呢？
+假如此时序列为l...temp...r，此时满足这些数的乘积小于k，注意此时右端点r是固定的，
+题目要求连续子数组，则[l,r],[l+1,r],[l+2,r],[r,r](即[r]本身)都是满足的，
+共有r-l+1个。
 
+时间复杂度：O(n)
+空间复杂度：O(1)
+"""
+class Solution:
+    def numSubarrayProductLessThanK(self, nums: List[int], k: int) -> int:
+        if k <= 1:
+            return 0
+        ans = 0
+        left = 0
+        # 乘积的英文为product，商的英文为quotient
+        product = 1
+        for right, x in enumerate(nums):
+            product *= x
+            while product >= k:
+                product /= nums[left]
+                left += 1
+            if product < k:
+                # 最容易错的一步，不是加1，因为乘数越少肯定越“小”
+                ans += right - left + 1
+        return ans
 ```
 
 4. [2958. 最多 K 个重复元素的最长子数组](https://leetcode.cn/problems/length-of-longest-subarray-with-at-most-k-frequency/)
