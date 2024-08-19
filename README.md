@@ -399,7 +399,42 @@ class Solution:
 > 法二（时间复杂度：O(n)，空间复杂度：O(1)）
 
 ```python
+"""
+思路：为了将空间复杂度从O(n)优化成O(1)，必须利用一些其他的性质。计算接水量的
+核心步骤依然是，桶的容积减去柱子高度，而桶容积取决于前缀最大值和后缀最大值中的
+最小值。之前我们是用两个数组来保存前缀最大值和后缀最大值，最后再遍历一次计算。
+因此我们要优化这一部分，用两个变量来储存，达到一边储存，一边计算的效果，而不是
+先储存完，最后计算。
+因为前缀最大值由前往后是非递减的，后缀最大值由后往前也是非递减的，之前的计算是
+我们遍历i，计算第i个的min(pre_max[i], suf_max[i])-height[i]，但是事实上
+我们不需要等到pre_max[i], suf_max[i]都知道后才能计算出min，比如当我们计算
+第5个的min时（假设长度很长，比如20），如果我们已经知道pre_max[5]=2，
+而suf_max[-2]=7，根据非递减性质，那么suf_max[5]的值肯定是大于pre_max[5]的，
+那么我们可以直接知道min值为pre_max[5]。利用这个性质，我们可以初始化left，
+right在左右两边，每次先计算当前的前后缀最大值，直接拿这两个前后缀最大值进行比较，
+再移动left或right，我们每次必定可以在左或右其中一个方向计算出一个min，从而计算
+出该位置能接的雨水数，最后把这些雨水数累加即可。
 
+时间复杂度：O(n)
+空间复杂度：O(1)
+"""
+class Solution:
+    def trap(self, height: List[int]) -> int:
+        ans = 0
+        left = 0
+        right = len(height) - 1
+        pre_max = 0
+        suf_max = 0
+        while left <= right:
+            pre_max = max(pre_max, height[left])
+            suf_max = max(suf_max, height[right])
+            if pre_max < suf_max:
+                ans += pre_max - height[left]
+                left += 1
+            else:
+                ans += suf_max - height[right]
+                right -= 1
+        return ans
 ```
 
 ### 滑动窗口
