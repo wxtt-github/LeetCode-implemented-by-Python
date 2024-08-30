@@ -559,7 +559,30 @@ class Solution:
 4. [2958. 最多 K 个重复元素的最长子数组](https://leetcode.cn/problems/length-of-longest-subarray-with-at-most-k-frequency/)
 
 ```python
+"""
+思路：
+考虑一般化的情况，假设给一个序列后面新增一个数字x，若引起大于k的条件，则一定是这个
+数字x的数量大于k了，因此我们首先新增这个数x，方法是在哈希表中将这个key的value加1，
+然后做一个循环，不断右移left直到保证这个序列是符合条件的，然后取最大值即可。
 
+时间复杂度：O(n)。左右指针最多各移动n次。
+空间复杂度：O(n)。与之前滑动窗口第2题不同，这里的哈希表可能的数量为n，而不是有限。
+"""
+class Solution:
+    def maxSubarrayLength(self, nums: List[int], k: int) -> int:
+        ans = 0
+        left = 0
+        cnt = dict()
+        for right, x in enumerate(nums):
+            if x not in cnt:
+                cnt[x] = 1
+            else:
+                cnt[x] += 1
+            while cnt[x] > k:
+                cnt[nums[left]] -= 1
+                left += 1
+            ans = max(ans, right - left + 1)
+        return ans
 ```
 
 5. [2730. 找到最长的半重复子字符串](https://leetcode.cn/problems/find-the-longest-semi-repetitive-substring/)
