@@ -588,13 +588,63 @@ class Solution:
 5. [2730. 找到最长的半重复子字符串](https://leetcode.cn/problems/find-the-longest-semi-repetitive-substring/)
 
 ```python
+"""
+思路：
+考虑破坏掉半重复性质的条件，一定是新加入的字符ch，与他前一个的字符s[right-1]相等。导致有两对相邻
+字符是相等的，因此当遇到这种情况时，我们不断右移left，直到s[left]==s[left-1]，即减少了一对相等的
+相邻字符，让相等的相邻字符数量为1，然后计算max即可。
 
+时间复杂度：O(n)。左右指针最多各移动n次。
+空间复杂度：O(1)。只用了常量的辅助空间。
+"""
+class Solution:
+    def longestSemiRepetitiveSubstring(self, s: str) -> int:
+        ans = 0
+        cnt = 0
+        left = 0
+        for right, ch in enumerate(s):
+            if right == 0:
+                ans = max(ans, right - left + 1)
+            else:
+                if ch == s[right-1]:
+                    cnt += 1
+            while cnt > 1:
+                left += 1
+                if s[left] == s[left-1]:
+                    cnt -= 1
+                    break
+            ans = max(ans, right - left + 1)
+
+        return ans
 ```
 
 6. [2779. 数组的最大美丽值](https://leetcode.cn/problems/maximum-beauty-of-an-array-after-applying-operation/)
 
 ```python
+"""
+思路：
+问题的关键在于首先要理解，对于数组的每个数x，可以变为[x-k,x+k]的任意一个数。
+并且问题的长度的判定，仅仅是相同数的个数，没有连续的要求。因此我们首先对数组排序，
+对于每个数x，实际上相当于[x-k,x+k]，那么这个美丽值，其实就是这些区间的最大相交数。
+对于两个区间（用数x，y来代替）是否相交，只需要x+k>=y-k即可，而在他们之间的这些区间，
+肯定也是与这两个区间相交的。上述式子可以改写成y-x<=2k，也就是满足这个条件时，美丽值就是
+right-left+1。因此我们写个循环，控制每次都满足该式子，然后计算最大ans即可。
+注意left越向右，肯定是越满足这个式子的，而right越向右，肯定是越不满足这个式子的。
 
+时间复杂度：O(nlogn)。用了快排。
+空间复杂度：O(logn)。算快排的空间复杂度的话。O(1)，不算快排的空间复杂度的话。
+"""
+class Solution:
+    def maximumBeauty(self, nums: List[int], k: int) -> int:
+        ans = 0
+        left = 0
+        nums.sort()
+
+        for right, x in enumerate(nums):
+            while x - nums[left] > 2 * k:
+                left += 1
+            ans = max(ans, right - left + 1)
+        return ans
 ```
 
 7. [1004. 最大连续 1 的个数 III](https://leetcode.cn/problems/max-consecutive-ones-iii/)
