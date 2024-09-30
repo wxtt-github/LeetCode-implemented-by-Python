@@ -797,67 +797,67 @@ class Solution:
 
 ### 二分查找
 
-1.
+1.[34. 在排序数组中查找元素的第一个和最后一个位置](https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/)
 
 ```python
 
 ```
 
-2.
+2.[2529. 正整数和负整数的最大计数](https://leetcode.cn/problems/maximum-count-of-positive-integer-and-negative-integer/)
 
 ```python
 
 ```
 
-3.
+3.[2300. 咒语和药水的成功对数](https://leetcode.cn/problems/successful-pairs-of-spells-and-potions/)
 
 ```python
 
 ```
 
-4.
+4.[2563. 统计公平数对的数目](https://leetcode.cn/problems/count-the-number-of-fair-pairs/)
 
 ```python
 
 ```
 
-5.
+5.[2080. 区间内查询数字的频率](https://leetcode.cn/problems/range-frequency-queries/)
 
 ```python
 
 ```
 
-6.
+6.[275. H 指数 II](https://leetcode.cn/problems/h-index-ii/)
 
 ```python
 
 ```
 
-7.
+7.[875. 爱吃香蕉的珂珂](https://leetcode.cn/problems/koko-eating-bananas/)
 
 ```python
 
 ```
 
-8.
+8.[2187. 完成旅途的最少时间](https://leetcode.cn/problems/minimum-time-to-complete-trips/)
 
 ```python
 
 ```
 
-9.
+9.[2861. 最大合金数](https://leetcode.cn/problems/maximum-number-of-alloys/)
 
 ```python
 
 ```
 
-10.
+10.[2439. 最小化数组中的最大值](https://leetcode.cn/problems/minimize-maximum-of-array/)
 
 ```python
 
 ```
 
-11.
+11.[2517. 礼盒的最大甜蜜度](https://leetcode.cn/problems/maximum-tastiness-of-candy-basket/)
 
 ```python
 
@@ -865,31 +865,31 @@ class Solution:
 
 ### 二分查找 - 变形
 
-1.
+1.[162. 寻找峰值](https://leetcode.cn/problems/find-peak-element/)
 
 ```python
 
 ```
 
-2.
+2.[153. 寻找旋转排序数组中的最小值](https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/)
 
 ```python
 
 ```
 
-3.
+3.[33. 搜索旋转排序数组](https://leetcode.cn/problems/search-in-rotated-sorted-array/)
 
 ```python
 
 ```
 
-4.
+4.[1901. 寻找峰值 II](https://leetcode.cn/problems/find-a-peak-element-ii/)
 
 ```python
 
 ```
 
-5.
+5.[154. 寻找旋转排序数组中的最小值 II](https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array-ii/)
 
 ```python
 
@@ -897,37 +897,37 @@ class Solution:
 
 ### 链表 - 反转系列
 
-1.
+1.[206. 反转链表](https://leetcode.cn/problems/reverse-linked-list/)
 
 ```python
 
 ```
 
-2.
+2.[92. 反转链表 II](https://leetcode.cn/problems/reverse-linked-list-ii/)
 
 ```python
 
 ```
 
-3.
+3.[25. K 个一组翻转链表](https://leetcode.cn/problems/reverse-nodes-in-k-group/)
 
 ```python
 
 ```
 
-4.
+4.[24. 两两交换链表中的节点](https://leetcode.cn/problems/swap-nodes-in-pairs/)
 
 ```python
 
 ```
 
-5.
+5.[445. 两数相加 II](https://leetcode.cn/problems/add-two-numbers-ii/)
 
 ```python
 
 ```
 
-6.
+6.[2816. 翻倍以链表形式表示的数字](https://leetcode.cn/problems/double-a-number-represented-as-a-linked-list/)
 
 ```python
 
@@ -935,25 +935,25 @@ class Solution:
 
 ### 链表 - 快慢指针
 
-1.
+1.[876. 链表的中间结点](https://leetcode.cn/problems/middle-of-the-linked-list/)
 
 ```python
 
 ```
 
-2.
+2.[141. 环形链表](https://leetcode.cn/problems/linked-list-cycle/)
 
 ```python
 
 ```
 
-3.
+3.[142. 环形链表 II](https://leetcode.cn/problems/linked-list-cycle-ii/)
 
 ```python
 
 ```
 
-4.
+4.[143. 重排链表](https://leetcode.cn/problems/reorder-list/)
 
 ```python
 
@@ -961,43 +961,43 @@ class Solution:
 
 ### 链表 - 删除系列
 
-1.
+1.[237. 删除链表中的节点](https://leetcode.cn/problems/delete-node-in-a-linked-list/)
 
 ```python
 
 ```
 
-2.
+2.[19. 删除链表的倒数第 N 个结点](https://leetcode.cn/problems/remove-nth-node-from-end-of-list/)
 
 ```python
 
 ```
 
-3.
+3.[83. 删除排序链表中的重复元素](https://leetcode.cn/problems/remove-duplicates-from-sorted-list/)
 
 ```python
 
 ```
 
-4.
+4.[82. 删除排序链表中的重复元素 II](https://leetcode.cn/problems/remove-duplicates-from-sorted-list-ii/)
 
 ```python
 
 ```
 
-5.
+5.[203. 移除链表元素](https://leetcode.cn/problems/remove-linked-list-elements/)
 
 ```python
 
 ```
 
-6.
+6.[3217. 从链表中移除在数组中存在的节点](https://leetcode.cn/problems/delete-nodes-from-linked-list-present-in-array/)
 
 ```python
 
 ```
 
-7.
+7.[2487. 从链表中移除节点](https://leetcode.cn/problems/remove-nodes-from-linked-list/)
 
 ```python
 
@@ -1005,37 +1005,37 @@ class Solution:
 
 ### 二叉树与递归 - 深入理解
 
-1.
+1.[104. 二叉树的最大深度](https://leetcode.cn/problems/maximum-depth-of-binary-tree/)
 
 ```python
 
 ```
 
-2.
+2.[111. 二叉树的最小深度](https://leetcode.cn/problems/minimum-depth-of-binary-tree/)
 
 ```python
 
 ```
 
-3.
+3.[112. 路径总和](https://leetcode.cn/problems/path-sum/)
 
 ```python
 
 ```
 
-4.
+4.[129. 求根节点到叶节点数字之和](https://leetcode.cn/problems/sum-root-to-leaf-numbers/)
 
 ```python
 
 ```
 
-5.
+5.[1448. 统计二叉树中好节点的数目](https://leetcode.cn/problems/count-good-nodes-in-binary-tree/)
 
 ```python
 
 ```
 
-6.
+6.[987. 二叉树的垂序遍历](https://leetcode.cn/problems/vertical-order-traversal-of-a-binary-tree/)
 
 ```python
 
@@ -1043,49 +1043,49 @@ class Solution:
 
 ### 二叉树与递归 - 灵活运用
 
-1.
+1.[100. 相同的树](https://leetcode.cn/problems/same-tree/)
 
 ```python
 
 ```
 
-2.
+2.[101. 对称二叉树](https://leetcode.cn/problems/symmetric-tree/)
 
 ```python
 
 ```
 
-3.
+3.[110. 平衡二叉树](https://leetcode.cn/problems/balanced-binary-tree/)
 
 ```python
 
 ```
 
-4.
+4.[199. 二叉树的右视图](https://leetcode.cn/problems/binary-tree-right-side-view/)
 
 ```python
 
 ```
 
-5.
+5.[226. 翻转二叉树](https://leetcode.cn/problems/invert-binary-tree/)
 
 ```python
 
 ```
 
-6.
+6.[617. 合并二叉树](https://leetcode.cn/problems/merge-two-binary-trees/)
 
 ```python
 
 ```
 
-7.
+7.[1026. 节点与其祖先之间的最大差值](https://leetcode.cn/problems/maximum-difference-between-node-and-ancestor/)
 
 ```python
 
 ```
 
-8.
+8.[1080. 根到叶路径上的不足节点](https://leetcode.cn/problems/insufficient-nodes-in-root-to-leaf-paths/)
 
 ```python
 
@@ -1093,49 +1093,49 @@ class Solution:
 
 ### 二叉树与递归 - 前序/中序/后序
 
-1.
+1.[98. 验证二叉搜索树](https://leetcode.cn/problems/validate-binary-search-tree/)
 
 ```python
 
 ```
 
-2.
+2.[938. 二叉搜索树的范围和](https://leetcode.cn/problems/range-sum-of-bst/)
 
 ```python
 
 ```
 
-3.
+3.[2476. 二叉搜索树最近节点查询](https://leetcode.cn/problems/closest-nodes-queries-in-a-binary-search-tree/)
 
 ```python
 
 ```
 
-4.
+4.[1373. 二叉搜索子树的最大键值和](https://leetcode.cn/problems/maximum-sum-bst-in-binary-tree/)
 
 ```python
 
 ```
 
-5.
+5.[105. 从前序与中序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
 
 ```python
 
 ```
 
-6.
+6.[106. 从中序与后序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/)
 
 ```python
 
 ```
 
-7.
+7.[889. 根据前序和后序遍历构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/)
 
 ```python
 
 ```
 
-8.
+8.[1110. 删点成林](https://leetcode.cn/problems/delete-nodes-and-return-forest/)
 
 ```python
 
@@ -1143,19 +1143,19 @@ class Solution:
 
 ### 二叉树与递归 - 最近公共祖先
 
-1.
+1.[236. 二叉树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/)
 
 ```python
 
 ```
 
-2.
+2.[235. 二叉搜索树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/)
 
 ```python
 
 ```
 
-3.
+3.[1123. 最深叶节点的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-deepest-leaves/)
 
 ```python
 
@@ -1163,49 +1163,49 @@ class Solution:
 
 ### 二叉树 - BFS
 
-1.
+1.[102. 二叉树的层序遍历](https://leetcode.cn/problems/binary-tree-level-order-traversal/)
 
 ```python
 
 ```
 
-2.
+2.[103. 二叉树的锯齿形层序遍历](https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/)
 
 ```python
 
 ```
 
-3.
+3.[513. 找树左下角的值](https://leetcode.cn/problems/find-bottom-left-tree-value/)
 
 ```python
 
 ```
 
-4.
+4.[107. 二叉树的层序遍历 II](https://leetcode.cn/problems/binary-tree-level-order-traversal-ii/)
 
 ```python
 
 ```
 
-5.
+5.[116. 填充每个节点的下一个右侧节点指针](https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/)
 
 ```python
 
 ```
 
-6.
+6.[117. 填充每个节点的下一个右侧节点指针 II](https://leetcode.cn/problems/populating-next-right-pointers-in-each-node-ii/)
 
 ```python
 
 ```
 
-7.
+7.[2415. 反转二叉树的奇数层](https://leetcode.cn/problems/reverse-odd-levels-of-binary-tree/)
 
 ```python
 
 ```
 
-8.
+8.[2641. 二叉树的堂兄弟节点 II](https://leetcode.cn/problems/cousins-in-binary-tree-ii/)
 
 ```python
 
@@ -1213,19 +1213,19 @@ class Solution:
 
 ### 回溯 - 子集型
 
-1.
+1.[17. 电话号码的字母组合](https://leetcode.cn/problems/letter-combinations-of-a-phone-number/)
 
 ```python
 
 ```
 
-2.
+2.[78. 子集](https://leetcode.cn/problems/subsets/)
 
 ```python
 
 ```
 
-3.
+3.[131. 分割回文串](https://leetcode.cn/problems/palindrome-partitioning/)
 
 ```python
 
@@ -1233,25 +1233,25 @@ class Solution:
 
 ### 回溯 - 组合型与剪枝
 
-1.
+1.[77. 组合](https://leetcode.cn/problems/combinations/)
 
 ```python
 
 ```
 
-2.
+2.[216. 组合总和 III](https://leetcode.cn/problems/combination-sum-iii/)
 
 ```python
 
 ```
 
-3.
+3.[22. 括号生成](https://leetcode.cn/problems/generate-parentheses/)
 
 ```python
 
 ```
 
-4.
+4.[39. 组合总和](https://leetcode.cn/problems/combination-sum/)
 
 ```python
 
@@ -1259,25 +1259,25 @@ class Solution:
 
 ### 回溯 - 排列型
 
-1.
+1.[46. 全排列](https://leetcode.cn/problems/permutations/)
 
 ```python
 
 ```
 
-2.
+2.[51. N 皇后](https://leetcode.cn/problems/n-queens/)
 
 ```python
 
 ```
 
-3.
+3.[52. N 皇后 II](https://leetcode.cn/problems/n-queens-ii/)
 
 ```python
 
 ```
 
-4.
+4.[2850. 将石头分散到网格图的最少移动次数](https://leetcode.cn/problems/minimum-moves-to-spread-stones-over-grid/)
 
 ```python
 
@@ -1285,49 +1285,49 @@ class Solution:
 
 ### 动态规划 - 从记忆化搜索到递推
 
-1.
+1.[198. 打家劫舍](https://leetcode.cn/problems/house-robber/)
 
 ```python
 
 ```
 
-2.
+2.[70. 爬楼梯](https://leetcode.cn/problems/climbing-stairs/)
 
 ```python
 
 ```
 
-3.
+3.[746. 使用最小花费爬楼梯](https://leetcode.cn/problems/min-cost-climbing-stairs/)
 
 ```python
 
 ```
 
-4.
+4.[377. 组合总和 Ⅳ](https://leetcode.cn/problems/combination-sum-iv/)
 
 ```python
 
 ```
 
-5.
+5.[2466. 统计构造好字符串的方案数](https://leetcode.cn/problems/count-ways-to-build-good-strings/)
 
 ```python
 
 ```
 
-6.
+6.[2266. 统计打字方案数](https://leetcode.cn/problems/count-number-of-texts/)
 
 ```python
 
 ```
 
-7.
+7.[213. 打家劫舍 II](https://leetcode.cn/problems/house-robber-ii/)
 
 ```python
 
 ```
 
-8.
+8.[LCR 166. 珠宝的最高价值](https://leetcode.cn/problems/li-wu-de-zui-da-jie-zhi-lcof/)
 
 ```python
 
@@ -1335,37 +1335,37 @@ class Solution:
 
 ### 0-1 背包 完全背包 至多/恰好/至少
 
-1.
+1.[494. 目标和](https://leetcode.cn/problems/target-sum/)
 
 ```python
 
 ```
 
-2.
+2.[322. 零钱兑换](https://leetcode.cn/problems/coin-change/)
 
 ```python
 
 ```
 
-3.
+3.[2915. 和为目标值的最长子序列的长度](https://leetcode.cn/problems/length-of-the-longest-subsequence-that-sums-to-target/)
 
 ```python
 
 ```
 
-4.
+4.[416. 分割等和子集](https://leetcode.cn/problems/partition-equal-subset-sum/)
 
 ```python
 
 ```
 
-5.
+5.[518. 零钱兑换 II](https://leetcode.cn/problems/coin-change-ii/)
 
 ```python
 
 ```
 
-6.
+6.[279. 完全平方数](https://leetcode.cn/problems/perfect-squares/)
 
 ```python
 
@@ -1373,13 +1373,13 @@ class Solution:
 
 ### 最长公共子序列 LCS
 
-1.
+1.[1143. 最长公共子序列](https://leetcode.cn/problems/longest-common-subsequence/)
 
 ```python
 
 ```
 
-2.
+2.[72. 编辑距离](https://leetcode.cn/problems/edit-distance/)
 
 ```python
 
@@ -1387,19 +1387,19 @@ class Solution:
 
 ### 最长递增子序列 LIS
 
-1.
+1.[300. 最长递增子序列](https://leetcode.cn/problems/longest-increasing-subsequence/)
 
 ```python
 
 ```
 
-2.
+2.[1671. 得到山形数组的最少删除次数](https://leetcode.cn/problems/minimum-number-of-removals-to-make-mountain-array/)
 
 ```python
 
 ```
 
-3.
+3.[1626. 无矛盾的最佳球队](https://leetcode.cn/problems/best-team-with-no-conflicts/)
 
 ```python
 
@@ -1407,37 +1407,37 @@ class Solution:
 
 ### 状态机 DP - 买卖股票系列
 
-1.
+1.[122. 买卖股票的最佳时机 II](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/)
 
 ```python
 
 ```
 
-2.
+2.[309. 买卖股票的最佳时机含冷冻期](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/)
 
 ```python
 
 ```
 
-3.
+3.[188. 买卖股票的最佳时机 IV](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/)
 
 ```python
 
 ```
 
-4.
+4.[714. 买卖股票的最佳时机含手续费](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/)
 
 ```python
 
 ```
 
-5.
+5.[2826. 将三个组排序](https://leetcode.cn/problems/sorting-three-groups/)
 
 ```python
 
 ```
 
-6.
+6.[2786. 访问数组中的位置使分数最大](https://leetcode.cn/problems/visit-array-positions-to-maximize-score/)
 
 ```python
 
@@ -1445,31 +1445,31 @@ class Solution:
 
 ### 区间 DP
 
-1.
+1.[516. 最长回文子序列](https://leetcode.cn/problems/longest-palindromic-subsequence/)
 
 ```python
 
 ```
 
-2.
+2.[1039. 多边形三角剖分的最低得分](https://leetcode.cn/problems/minimum-score-triangulation-of-polygon/)
 
 ```python
 
 ```
 
-3.
+3.[3040. 相同分数的最大操作数目 II](https://leetcode.cn/problems/maximum-number-of-operations-with-the-same-score-ii/)
 
 ```python
 
 ```
 
-4.
+4.[1771. 由子序列构造的最长回文串的长度](https://leetcode.cn/problems/maximize-palindrome-length-from-subsequences/)
 
 ```python
 
 ```
 
-5.
+5.[1000. 合并石头的最低成本](https://leetcode.cn/problems/minimum-cost-to-merge-stones/)
 
 ```python
 
@@ -1477,43 +1477,43 @@ class Solution:
 
 ### 树形 DP - 直径系列
 
-1.
+1.[543. 二叉树的直径](https://leetcode.cn/problems/diameter-of-binary-tree/)
 
 ```python
 
 ```
 
-2.
+2.[124. 二叉树中的最大路径和](https://leetcode.cn/problems/binary-tree-maximum-path-sum/)
 
 ```python
 
 ```
 
-3.
+3.[2246. 相邻字符不同的最长路径](https://leetcode.cn/problems/longest-path-with-different-adjacent-characters/)
 
 ```python
 
 ```
 
-4.
+4.[687. 最长同值路径](https://leetcode.cn/problems/longest-univalue-path/)
 
 ```python
 
 ```
 
-5.
+5.[3203. 合并两棵树后的最小直径](https://leetcode.cn/problems/find-minimum-diameter-after-merging-two-trees/)
 
 ```python
 
 ```
 
-6.
+6.[1617. 统计子树中城市之间最大距离](https://leetcode.cn/problems/count-subtrees-with-max-distance-between-cities/)
 
 ```python
 
 ```
 
-7.
+7.[2538. 最大价值和与最小价值和的差值](https://leetcode.cn/problems/difference-between-maximum-and-minimum-price-sum/)
 
 ```python
 
@@ -1521,19 +1521,19 @@ class Solution:
 
 ### 树形 DP - 最大独立集
 
-1.
+1.[337. 打家劫舍 III](https://leetcode.cn/problems/house-robber-iii/)
 
 ```python
 
 ```
 
-2.
+2.[1377. T 秒后青蛙的位置](https://leetcode.cn/problems/frog-position-after-t-seconds/)
 
 ```python
 
 ```
 
-3.
+3.[2646. 最小化旅行的价格总和](https://leetcode.cn/problems/minimize-the-total-price-of-the-trips/)
 
 ```python
 
@@ -1541,7 +1541,7 @@ class Solution:
 
 ### 树形 DP - 最小支配集
 
-1.
+1.[968. 监控二叉树](https://leetcode.cn/problems/binary-tree-cameras/)
 
 ```python
 
@@ -1549,55 +1549,55 @@ class Solution:
 
 ### 单调栈
 
-1.
+1.[739. 每日温度](https://leetcode.cn/problems/daily-temperatures/)
 
 ```python
 
 ```
 
-2.
+2.[42. 接雨水](https://leetcode.cn/problems/trapping-rain-water/)
 
 ```python
 
 ```
 
-3.
+3.[496. 下一个更大元素 I](https://leetcode.cn/problems/next-greater-element-i/)
 
 ```python
 
 ```
 
-4.
+4.[503. 下一个更大元素 II](https://leetcode.cn/problems/next-greater-element-ii/)
 
 ```python
 
 ```
 
-5.
+5.[901. 股票价格跨度](https://leetcode.cn/problems/online-stock-span/)
 
 ```python
 
 ```
 
-6.
+6.[1019. 链表中的下一个更大节点](https://leetcode.cn/problems/next-greater-node-in-linked-list/)
 
 ```python
 
 ```
 
-7.
+7.[1944. 队列中可以看到的人数](https://leetcode.cn/problems/number-of-visible-people-in-a-queue/)
 
 ```python
 
 ```
 
-8.
+8.[84. 柱状图中最大的矩形](https://leetcode.cn/problems/largest-rectangle-in-histogram/)
 
 ```python
 
 ```
 
-9.
+9.[1793. 好子数组的最大分数](https://leetcode.cn/problems/maximum-score-of-a-good-subarray/)
 
 ```python
 
@@ -1605,37 +1605,37 @@ class Solution:
 
 ### 单调队列
 
-1.
+1.[239. 滑动窗口最大值](https://leetcode.cn/problems/sliding-window-maximum/)
 
 ```python
 
 ```
 
-2.
+2.[2398. 预算内的最多机器人数目](https://leetcode.cn/problems/maximum-number-of-robots-within-budget/)
 
 ```python
 
 ```
 
-3.
+3.[862. 和至少为 K 的最短子数组](https://leetcode.cn/problems/shortest-subarray-with-sum-at-least-k/)
 
 ```python
 
 ```
 
-4.
+4.[1499. 满足不等式的最大值](https://leetcode.cn/problems/max-value-of-equation/)
 
 ```python
 
 ```
 
-5.
+5.[1696. 跳跃游戏 VI](https://leetcode.cn/problems/jump-game-vi/)
 
 ```python
 
 ```
 
-6.
+6.[2944. 购买水果需要的最少金币数](https://leetcode.cn/problems/minimum-number-of-coins-for-fruits/)
 
 ```python
 
