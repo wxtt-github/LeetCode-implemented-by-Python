@@ -650,25 +650,115 @@ class Solution:
 7. [1004. 最大连续 1 的个数 III](https://leetcode.cn/problems/max-consecutive-ones-iii/)
 
 ```python
+"""
+思路：乍一看可能和滑动窗口无关，这是因为顺着题目的思路导致的。换一个角度想，既然
+我们有能将k个0变成1的能力，统计的是最长连续1的序列的长度，那么我们可以想成在一个
+滑动窗口中，最多出现k个0，这个滑动窗口的最大长度就是我们要求的答案。因为这个滑动
+窗口中的0我们都能变成1，那么整个滑动窗口就都是1了。
 
+时间复杂度：O(n)
+空间复杂度：O(1)
+"""
+class Solution:
+    def longestOnes(self, nums: List[int], k: int) -> int:
+        ans = 0
+        cnt0 = 0
+        left = 0
+        for right, x in enumerate(nums):
+            if x == 0:
+                cnt0 += 1
+            if cnt0 > k:
+                if nums[left] == 0:
+                    cnt0 -= 1
+                left += 1
+            ans = max(ans, right - left + 1)
+        return ans
 ```
 
 8. [2962. 统计最大元素出现至少 K 次的子数组](https://leetcode.cn/problems/count-subarrays-where-max-element-appears-at-least-k-times/)
 
 ```python
+"""
+思路：首先明确，题目中的子数组指的是连续的元素序列。比较能容易想到这题要用滑动窗口
+的思想，但是对于计算子数组的数量，比较难以确定，这里思路是，新增right后，判断是否
+等于k个，若等于，则ans+=len-right，然后右移left直到小于k，即等于k-1个。这样
+处理的原因是，若子序列[a...b...c...d]中[a...b...c]满足条件，则d-c+1个子数组
+均满足条件，包括[a...b...c,c+1]，[a...b...c,c+1,c+2]，...[a...b...c...d]。
 
+时间复杂度：O(n)
+空间复杂度：O(1)
+"""
+class Solution:
+    def countSubarrays(self, nums: List[int], k: int) -> int:
+        ans = 0
+        left = 0
+        max_element = max(nums)
+        cnt = 0
+        for right, x in enumerate(nums):
+            if x == max_element:
+                cnt += 1
+            while cnt == k:
+                ans += len(nums) - right
+                if nums[left] == max_element:
+                    cnt -= 1
+                left += 1
+        return ans
 ```
 
 9. [2302. 统计得分小于 K 的子数组数目](https://leetcode.cn/problems/count-subarrays-with-score-less-than-k/)
 
 ```python
+"""
+思路：只能说观察出是滑动窗口方法，然后猜测数学原理
 
+时间复杂度：O(n)
+空间复杂度：O(1)
+"""
+class Solution:
+    def countSubarrays(self, nums: List[int], k: int) -> int:
+        ans = 0
+        left = 0
+        s = 0
+        for right, x in enumerate(nums):
+            s += x
+            while s * (right - left + 1) >= k:
+                s -= nums[left]
+                left += 1
+            ans += right - left + 1
+        return ans
 ```
 
 10. [1658. 将 x 减到 0 的最小操作数](https://leetcode.cn/problems/minimum-operations-to-reduce-x-to-zero/)
 
 ```python
+"""
+思路：题目想问的就是取一个前缀和一段后缀，他们两个的和加起来等于x。
+因此我们可以转换思路，因为中间的序列是连续的，我们可以把中间的序列
+看成一个滑动窗口，当其和等于sum(nums)-x时，满足题意。需要注意的是
+当数组和小于x时，要处理这个特殊情况，直接返回-1，否则后面会死循环。
 
+时间复杂度：O(n)
+空间复杂度：O(1)
+"""
+class Solution:
+    def minOperations(self, nums: List[int], x: int) -> int:
+        ans = len(nums) + 1
+        left = 0
+        if sum(nums) < x:
+            return -1
+        s1 = 0
+        s2 = sum(nums) - x
+        for right, x in enumerate(nums):
+            s1 += x
+            while s1 > s2:
+                s1 -= nums[left]
+                left += 1
+            if s1 == s2:
+                ans = min(ans, len(nums) - (right - left + 1))
+        if ans == len(nums) + 1:
+            return -1
+        else:
+            return ans
 ```
 
 11. [1234. 替换子串得到平衡字符串](https://leetcode.cn/problems/replace-the-substring-for-balanced-string/)
