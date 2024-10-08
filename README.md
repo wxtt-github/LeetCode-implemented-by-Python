@@ -786,7 +786,40 @@ class Solution:
 11. [1234. 替换子串得到平衡字符串](https://leetcode.cn/problems/replace-the-substring-for-balanced-string/)
 
 ```python
+"""
+思路：首先明确这个字符串只含有四种字符，其次他的长度一定是4的倍数。对于这个字符串，
+我们分成两部分，一部分取其中的连续子串s1，剩下一部分为s2（注意这部分不一定连续）。
+若s1以外的部分，他其中的一种字符数量已经超过了n/4，那么无论我们怎么替换子串s1，
+这个字符的数量都是大于n/4的，因此不满足题意，若以外的部分中的每一种字符的数量都
+小于等于n/4，并且联系已知这个字符串长度一定是4的倍数，那么我们可以通过替换子串s1，
+来达到满足题意的效果。使用哈希表记录s1以外部分，每种字符的出现次数，先判断初始特殊情况，
+然后遍历右指针right，其中再不断右移left，进行求解。
 
+
+时间复杂度：O(n)。
+空间复杂度：O(1)，因为只有4种字符，使用的哈希表空间为常量。
+"""
+import numpy as np
+class Solution:
+    def balancedString(self, s: str) -> int:
+        cnt = dict()
+        for ch in s:
+            if ch not in cnt:
+                cnt[ch] = 1
+            else:
+                cnt[ch] += 1
+        m = len(s) // 4
+        if len(cnt) == 4 and min(cnt.values()) == m:
+            return 0
+        ans = np.inf
+        left = 0
+        for right, ch in enumerate(s):
+            cnt[ch] -= 1
+            while max(cnt.values()) <= m:
+                ans = min(ans, right - left + 1)
+                cnt[s[left]] += 1
+                left += 1
+        return ans
 ```
 
 12. [76. 最小覆盖子串](https://leetcode.cn/problems/minimum-window-substring/)
@@ -800,13 +833,62 @@ class Solution:
 1.[34. 在排序数组中查找元素的第一个和最后一个位置](https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/)
 
 ```python
+"""
+思路：
+首先要实现一个函数lower_bound，他能够返回使得nums[i]>=k的最小的i，
+如果都不满足，则返回数组长度。
+无论是求开始位置还是结束位置，都可以用lower_bound解决，当求开始位置时，只需要
+设置k为target本身，当求结束位置时，设置k为target+1，求得的值再减1即为结束位置。
 
+时间复杂度：O(logn)
+空间复杂度：O(1)
+"""
+def lower_bound(nums: List[int], target: int) -> int:
+    left = 0
+    right = len(nums) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if nums[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return left
+
+class Solution:
+    def searchRange(self, nums: List[int], target: int) -> List[int]:
+        start = lower_bound(nums, target)
+        if start == len(nums) or nums[start] != target:
+            return [-1, -1]
+        end = lower_bound(nums, target + 1) - 1
+        return [start, end]
 ```
 
 2.[2529. 正整数和负整数的最大计数](https://leetcode.cn/problems/maximum-count-of-positive-integer-and-negative-integer/)
 
 ```python
+"""
+思路：求负整数的个数，就将lower_bound中的target设为0，即为答案
+求正整数的个数，就将target设为1，再用len(nums)减去这个数即可。
 
+时间复杂度：O(logn)
+空间复杂度：O(1)
+"""
+def lower_bound(nums: List[int], target) -> int:
+    left = 0
+    right = len(nums) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if nums[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return left
+
+class Solution:
+    def maximumCount(self, nums: List[int]) -> int:
+        positive = lower_bound(nums, 0)
+        negative = len(nums) - lower_bound(nums, 1)
+        return max(positive, negative)
 ```
 
 3.[2300. 咒语和药水的成功对数](https://leetcode.cn/problems/successful-pairs-of-spells-and-potions/)
