@@ -894,7 +894,39 @@ class Solution:
 3.[2300. 咒语和药水的成功对数](https://leetcode.cn/problems/successful-pairs-of-spells-and-potions/)
 
 ```python
+"""
+思路：最普通的方法是遍历这两个数组，这样时间复杂度是O(mn)。对于spells[i]，
+若能与potions[j]进行配对，则他们两个相乘要大于等于success，也就是相当于，
+对于potions里的每个元素，只要满足大于等于success//spells[i]的向上取整的值，
+就可以与spells[i]进行配对，因此我们可以先将potions进行排序，然后再用二分查找。
 
+时间复杂度：O(nlogn+mlogn)即O((n+m)logn)。其中m为spells长度，n为potions长度。快排为O(nlogn)，
+之后对spells遍历，外层为m，内层对potions进行二分，为logn。
+空间复杂度：O(logn)。快排空间复杂度为O(logn)。
+"""
+def lower_bound(nums: List[int], target: int) -> int:
+    left = 0
+    right = len(nums) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if nums[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return left
+
+class Solution:
+    def successfulPairs(self, spells: List[int], potions: List[int], success: int) -> List[int]:
+        ans = []
+        potions.sort()
+        for i in spells:
+            x = (success - 1) // i + 1
+            start = lower_bound(potions, x)
+            if start == len(potions):
+                ans.append(0)
+            else:
+                ans.append(len(potions) - start)
+        return ans
 ```
 
 4.[2563. 统计公平数对的数目](https://leetcode.cn/problems/count-the-number-of-fair-pairs/)
