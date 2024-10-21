@@ -932,19 +932,118 @@ class Solution:
 4.[2563. 统计公平数对的数目](https://leetcode.cn/problems/count-the-number-of-fair-pairs/)
 
 ```python
+"""
+思路：这题无非就是先对数组排序，然后遍历这个数组，固定一个数，对他之后的数组进行
+二分查找，但是对于二分查找的实现方式，与前面几题不同，需要做一下重构。因为如果新建
+一个数组nums2=nums[index+1:len(nums)]，需要注意这是一个O(n)的复制，外层遍历
+叠加起来，时间复杂度就成了O(n^2)。因此不妨在二分查找算法上，传入一个start和end，
+就省去了复制数组的时间，使得时间复杂度为O(nlogn)
 
+时间复杂度：O(nlogn)
+空间复杂度：O(logn)
+"""
+def lower_bound(nums: List[int], target: int, start, end):
+    left = start
+    right = end
+    while left <= right:
+        mid = (left + right) // 2
+        if nums[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return left
+
+class Solution:
+    def countFairPairs(self, nums: List[int], lower: int, upper: int) -> int:
+        nums.sort()
+        ans = 0
+        for index, value in enumerate(nums):
+            if index == len(nums) - 1:
+                break
+            start1 = lower_bound(nums, lower - value, index+1, len(nums) - 1)
+            if start1 == len(nums):
+                continue
+            start2 = lower_bound(nums, upper - value + 1, index+1, len(nums) - 1)
+            ans += start2 - start1
+        return ans
 ```
 
 5.[2080. 区间内查询数字的频率](https://leetcode.cn/problems/range-frequency-queries/)
 
 ```python
+"""
+思路：最简单的做法是暴力，求频率就需要O(n)的时间复杂度，为了优化这个复杂度，
+我们需要使用二分查找。用一个哈希表，将每个值的下标列表存起来，此时这个列表
+满足非递减的性质，此时再对这个列表进行二分查找，即可得到答案。
 
+时间复杂度：初始化需要O(n)，求频率需要O(logn)
+空间复杂度：哈希表需要O(n)
+"""
+from typing import List
+from collections import defaultdict
+def lower_bound(nums: List[int], target) -> int:
+    left = 0
+    right = len(nums) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if nums[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return left
+
+class RangeFreqQuery:
+    def __init__(self, arr: List[int]):
+        # 和dict的区别是，defaultdict需要从collections导入，当访问不存在
+        # 的键时，会自动创建一个默认的类型，如果用dict，需要用not in做几次判断处理
+        index_map = defaultdict(list)
+        for index, value in enumerate(arr):
+            index_map[value].append(index)
+        self.index_map = index_map
+
+    def query(self, left: int, right: int, value: int) -> int:
+        start = lower_bound(self.index_map[value], left)
+        if start == len(self.index_map[value]):
+            return 0
+        end = lower_bound(self.index_map[value], right+1)
+        return end - start
 ```
 
 6.[275. H 指数 II](https://leetcode.cn/problems/h-index-ii/)
 
 ```python
+"""
+思路：这题为了要实现O(logn)的时间复杂度，首先不能陷入题目的思路，如果按照
+题目的思路，先判断h指数可否为1，可否为2...可否为n，那时间复杂度一定是O(n)。
+要转换思路，二分查找，直接判断中间(left+right)/2可否成立，因为若a<b，当h
+指数可为b时，一定也可为a。然后就是如何判断h指数可否成立的问题，比如对于一个列表
+[1,2,3,4,5,6]，我们想判断h指数可否为3，也就是有没有3个数大于等于3，也就是说
+我们可以直接取倒数第3个数，若这个数大于等于3，又根据单调性，肯定能有至少3个数
+大于等于3，那我们进行抽象，h指数可否为mid，就直接判断citations[-mid]是否>=
+mid即可，还要注意这里不是返回left，而是返回right，因为当left==right时进行最后
+一次二分判断时，若不满足，是将right=mid-1，也就是这个mid不满足，而这个right会
+满足，这时候也同时跳出了循环。
+[注]:对于取倒数第mid个数citations[-mid]，如果改写成citations[len(citations)-mid]，
+会有错误，因为对于特殊列表[0]，mid=0时，会出现错误，其实循环也可以直接从1到len(citations)
+开始，因为h指数必可为0，这样无论用哪种写法也不会产生这个错误，因为问题关键主要是，取倒数第0个
+数这种说法，本身就不太合理。
 
+时间复杂度：O(logn)
+空间复杂度：O(1)
+"""
+class Solution:
+    def hIndex(self, citations: List[int]) -> int:
+        left = 0
+        right = len(citations)
+        while left <= right:
+            mid = (left + right) // 2
+            # if citations[len(citations) - mid] >= mid:
+            #     left = mid + 1
+            if citations[-mid] >= mid:
+                left = mid + 1
+            else:
+                right = mid - 1
+        return right
 ```
 
 7.[875. 爱吃香蕉的珂珂](https://leetcode.cn/problems/koko-eating-bananas/)
