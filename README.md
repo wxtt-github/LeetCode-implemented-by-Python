@@ -11,26 +11,26 @@
 - [滑动窗口](#滑动窗口)
 - [二分查找](#二分查找)
 - [二分查找-变形](#二分查找-变形)
-- [链表 - 反转系列](#链表 - 反转系列)
-- [链表 - 快慢指针](#链表 - 快慢指针)
-- [链表 - 删除系列](#链表 - 删除系列)
-- [二叉树与递归 - 深入理解](#二叉树与递归 - 深入理解)
-- [二叉树与递归 - 灵活运用](#二叉树与递归 - 灵活运用)
-- [二叉树与递归 - 前序/中序/后序](#二叉树与递归 - 前序/中序/后序)
-- [二叉树与递归 - 最近公共祖先](#二叉树与递归 - 最近公共祖先)
-- [二叉树 - BFS](#二叉树 - BFS)
-- [回溯 - 子集型](#回溯 - 子集型)
-- [回溯 - 组合型与剪枝](#回溯 - 组合型与剪枝)
-- [回溯 - 排列型](#回溯 - 排列型)
-- [动态规划 - 从记忆化搜索到递推](#动态规划 - 从记忆化搜索到递推)
-- [0-1 背包 完全背包 至多/恰好/至少](#0-1 背包 完全背包 至多/恰好/至少)
-- [最长公共子序列 LCS](#最长公共子序列 LCS)
-- [最长递增子序列 LIS](#最长递增子序列 LIS)
-- [状态机 DP - 买卖股票系列](#状态机 DP - 买卖股票系列)
-- [区间 DP](#区间 DP)
-- [树形 DP - 直径系列](#树形 DP - 直径系列)
-- [树形 DP - 最大独立集](#树形 DP - 最大独立集)
-- [树形 DP - 最小支配集](#树形 DP - 最小支配集)
+- [链表-反转系列](#链表-反转系列)
+- [链表-快慢指针](#链表-快慢指针)
+- [链表-删除系列](#链表-删除系列)
+- [二叉树与递归-深入理解](#二叉树与递归-深入理解)
+- [二叉树与递归-灵活运用](#二叉树与递归-灵活运用)
+- [二叉树与递归-前序/中序/后序](#二叉树与递归-前序/中序/后序)
+- [二叉树与递归-最近公共祖先](#二叉树与递归-最近公共祖先)
+- [二叉树-BFS](#二叉树-BFS)
+- [回溯-子集型](#回溯-子集型)
+- [回溯-组合型与剪枝](#回溯-组合型与剪枝)
+- [回溯-排列型](#回溯-排列型)
+- [动态规划-从记忆化搜索到递推](#动态规划-从记忆化搜索到递推)
+- [0-1-背包-完全背包-至多/恰好/至少](#0-1-背包-完全背包-至多/恰好/至少)
+- [最长公共子序列-LCS](#最长公共子序列-LCS)
+- [最长递增子序列-LIS](#最长递增子序列-LIS)
+- [状态机-DP-买卖股票系列](#状态机-DP-买卖股票系列)
+- [区间-DP](#区间-DP)
+- [树形-DP-直径系列](#树形-DP-直径系列)
+- [树形-DP-最大独立集](#树形-DP-最大独立集)
+- [树形-DP-最小支配集](#树形-DP-最小支配集)
 - [单调栈](#单调栈)
 - [单调队列](#单调队列)
 
@@ -1108,7 +1108,7 @@ class Solution:
 
 ```
 
-### 链表 - 反转系列
+### 链表-反转系列
 
 1.[206. 反转链表](https://leetcode.cn/problems/reverse-linked-list/)
 
@@ -1146,7 +1146,7 @@ class Solution:
 
 ```
 
-### 链表 - 快慢指针
+### 链表-快慢指针
 
 1.[876. 链表的中间结点](https://leetcode.cn/problems/middle-of-the-linked-list/)
 
@@ -1172,7 +1172,7 @@ class Solution:
 
 ```
 
-### 链表 - 删除系列
+### 链表-删除系列
 
 1.[237. 删除链表中的节点](https://leetcode.cn/problems/delete-node-in-a-linked-list/)
 
@@ -1216,7 +1216,7 @@ class Solution:
 
 ```
 
-### 二叉树与递归 - 深入理解
+### 二叉树与递归-深入理解
 
 1.[104. 二叉树的最大深度](https://leetcode.cn/problems/maximum-depth-of-binary-tree/)
 
@@ -1254,7 +1254,7 @@ class Solution:
 
 ```
 
-### 二叉树与递归 - 灵活运用
+### 二叉树与递归-灵活运用
 
 1.[100. 相同的树](https://leetcode.cn/problems/same-tree/)
 
@@ -1304,7 +1304,7 @@ class Solution:
 
 ```
 
-### 二叉树与递归 - 前序/中序/后序
+### 二叉树与递归-前序/中序/后序
 
 1.[98. 验证二叉搜索树](https://leetcode.cn/problems/validate-binary-search-tree/)
 
@@ -1354,7 +1354,7 @@ class Solution:
 
 ```
 
-### 二叉树与递归 - 最近公共祖先
+### 二叉树与递归-最近公共祖先
 
 1.[236. 二叉树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/)
 
@@ -1374,7 +1374,7 @@ class Solution:
 
 ```
 
-### 二叉树 - BFS
+### 二叉树-BFS
 
 1.[102. 二叉树的层序遍历](https://leetcode.cn/problems/binary-tree-level-order-traversal/)
 
@@ -1424,7 +1424,7 @@ class Solution:
 
 ```
 
-### 回溯 - 子集型
+### 回溯-子集型
 
 1.[17. 电话号码的字母组合](https://leetcode.cn/problems/letter-combinations-of-a-phone-number/)
 
@@ -1444,7 +1444,7 @@ class Solution:
 
 ```
 
-### 回溯 - 组合型与剪枝
+### 回溯-组合型与剪枝
 
 1.[77. 组合](https://leetcode.cn/problems/combinations/)
 
@@ -1470,7 +1470,7 @@ class Solution:
 
 ```
 
-### 回溯 - 排列型
+### 回溯-排列型
 
 1.[46. 全排列](https://leetcode.cn/problems/permutations/)
 
@@ -1496,7 +1496,7 @@ class Solution:
 
 ```
 
-### 动态规划 - 从记忆化搜索到递推
+### 动态规划-从记忆化搜索到递推
 
 1.[198. 打家劫舍](https://leetcode.cn/problems/house-robber/)
 
@@ -1546,7 +1546,7 @@ class Solution:
 
 ```
 
-### 0-1 背包 完全背包 至多/恰好/至少
+### 0-1-背包-完全背包-至多/恰好/至少
 
 1.[494. 目标和](https://leetcode.cn/problems/target-sum/)
 
@@ -1584,7 +1584,7 @@ class Solution:
 
 ```
 
-### 最长公共子序列 LCS
+### 最长公共子序列-LCS
 
 1.[1143. 最长公共子序列](https://leetcode.cn/problems/longest-common-subsequence/)
 
@@ -1598,7 +1598,7 @@ class Solution:
 
 ```
 
-### 最长递增子序列 LIS
+### 最长递增子序列-LIS
 
 1.[300. 最长递增子序列](https://leetcode.cn/problems/longest-increasing-subsequence/)
 
@@ -1618,7 +1618,7 @@ class Solution:
 
 ```
 
-### 状态机 DP - 买卖股票系列
+### 状态机-DP-买卖股票系列
 
 1.[122. 买卖股票的最佳时机 II](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/)
 
@@ -1656,7 +1656,7 @@ class Solution:
 
 ```
 
-### 区间 DP
+### 区间-DP
 
 1.[516. 最长回文子序列](https://leetcode.cn/problems/longest-palindromic-subsequence/)
 
@@ -1688,7 +1688,7 @@ class Solution:
 
 ```
 
-### 树形 DP - 直径系列
+### 树形-DP-直径系列
 
 1.[543. 二叉树的直径](https://leetcode.cn/problems/diameter-of-binary-tree/)
 
@@ -1732,7 +1732,7 @@ class Solution:
 
 ```
 
-### 树形 DP - 最大独立集
+### 树形-DP-最大独立集
 
 1.[337. 打家劫舍 III](https://leetcode.cn/problems/house-robber-iii/)
 
@@ -1752,7 +1752,7 @@ class Solution:
 
 ```
 
-### 树形 DP - 最小支配集
+### 树形-DP-最小支配集
 
 1.[968. 监控二叉树](https://leetcode.cn/problems/binary-tree-cameras/)
 
