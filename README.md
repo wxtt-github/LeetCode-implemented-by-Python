@@ -825,7 +825,71 @@ class Solution:
 12. [76. 最小覆盖子串](https://leetcode.cn/problems/minimum-window-substring/)
 
 ```python
+"""
+思路:
+求最小覆盖子串,字串连续,由此想到滑动窗口思路。首先要能够统计t字符串中各字符的出现次数,
+可以用collections库中的Counter数据结构来做这个事情,会返回一个字典,键为元素,值为数量。
+初始化ans_left和ans_right在s之外,最终用于标记子串的开始和结尾,然后开始滑动窗口,初始
+化left=0,用for循环遍历right,不断增加cnt_s,如果cnt_s>=cnt_t,即"涵盖",则更新ans,并不
+断将left右移,直到破坏条件。最终根据ans返回子串。
+时间复杂度:O(|Σ|m+n),其中|Σ|是字符集的大小,这里为52
+空间复杂度:O(|Σ|)
 
+优化:本题的进阶是要实现时间复杂度为O(m+n)的算法,对于之前的操作,引入了|Σ|的原因是判断
+涵盖时需要用到哈希表的比较,因此要考虑一个更好的判断条件来优化。考虑用一个变量less代表
+有cnt_s中有less种字符小于cnt_t中的数目,进一步的,只需要cnt_t一个哈希表判断即可,当其中
+的元素的值均<=0时,则满足。需要注意,cnt_t即使引入了t中不存在的种类的字符,也不影响结果,
+因为less+=1的条件是cnt_t[s[left]]原先为0,而如果引入不存在的种类的字符,less+=1时涉及
+不存在的种类字符时,其不可能为0,只会为负数,因此对结果没有影响。
+时间复杂度:O(m+n),其中|Σ|是字符集的大小,这里为52
+空间复杂度:O(|Σ|)
+"""
+from collections import Counter
+# @lc code=start
+class Solution:
+    def minWindow(self, s: str, t: str) -> str:
+        # 优化前算法
+        # cnt_s = Counter()
+        # cnt_t = Counter(t)
+        # ans_left = -1
+        # ans_right = len(s)
+        # left = 0
+        # for right, c in enumerate(s):
+        #     cnt_s[c] += 1
+        #     while cnt_s >= cnt_t:
+        #         if right - left < ans_right - ans_left:
+        #             ans_left = left
+        #             ans_right = right
+        #         cnt_s[s[left]] -= 1
+        #         left += 1
+        # if ans_left < 0:
+        #     return ""
+        # else:
+        #     return s[ans_left:ans_right+1]
+
+        # 优化后算法
+        cnt_t = Counter(t)
+        less = len(cnt_t)
+        ans_left = -1
+        ans_right = len(s)
+        left = 0
+        for right, c in enumerate(s):
+            cnt_t[c] -= 1
+            if cnt_t[c] == 0:
+                less -= 1
+            while less == 0:
+                if right - left < ans_right - ans_left:
+                    ans_left = left
+                    ans_right = right
+                x = s[left]
+                if cnt_t[x] == 0:
+                    less += 1
+                cnt_t[x] += 1
+                left += 1
+        if ans_left < 0:
+            return ""
+        else:
+            return s[ans_left:ans_right+1]
 ```
 
 ### 二分查找
@@ -1221,7 +1285,62 @@ class Solution:
 1.[104. 二叉树的最大深度](https://leetcode.cn/problems/maximum-depth-of-binary-tree/)
 
 ```python
+"""
+思路:
+求二叉树的最大深度,使用递归是最简单的,按先序遍历(根-左-右),先写终止条件,
+即为空叶结点时,返回0,然后求其左子树深度,再求其右子树深度,最后取其最大值+1即可。
+另外,需要熟记二叉树的类定义以及根据列表创建二叉数的函数,已附在Solution中。
 
+时间复杂度:O(n)
+空间复杂度:O(h),其中h为二叉树的深度,为递归调用时栈的大小
+"""
+from typing import Optional, List
+from collections import deque
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+        
+class Solution:
+    def maxDepth(self, root: Optional[TreeNode]) -> int:
+        if root == None:
+            return 0
+        leftDepth = self.maxDepth(root.left)
+        rightDepth = self.maxDepth(root.right)
+        return max(leftDepth, rightDepth) + 1
+
+
+    def create_binary_tree(self, nums: List[Optional[int]]) -> Optional[TreeNode]:
+        if nums is None or len(nums) == 0:
+            return None
+        
+        root = TreeNode(nums[0])
+        queue = deque()
+        queue.append(root)
+        i = 1
+        while queue and i < len(nums):
+            temp = queue.popleft()
+            if i < len(nums) and nums[i] != None:
+                temp.left = TreeNode(nums[i])
+                queue.append(temp.left)
+            i += 1
+            if i < len(nums) and nums[i] != None:
+                temp.right = TreeNode(nums[i])
+                queue.append(temp.right)
+            i += 1
+        return root
+
+def main():
+    solution = Solution()
+    nums = [3, 9, 20, None, None, 15, 7]
+    root = solution.create_binary_tree(nums)
+
+    print(f'Binary Tree Max Depth:{solution.maxDepth(root)}')
+
+if __name__ == '__main__':
+    main()
 ```
 
 2.[111. 二叉树的最小深度](https://leetcode.cn/problems/minimum-depth-of-binary-tree/)
