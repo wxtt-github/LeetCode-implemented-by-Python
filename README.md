@@ -1287,12 +1287,16 @@ class Solution:
 ```python
 """
 思路:
+法一:
 求二叉树的最大深度,使用递归是最简单的,按先序遍历(根-左-右),先写终止条件,
 即为空叶结点时,返回0,然后求其左子树深度,再求其右子树深度,最后取其最大值+1即可。
 另外,需要熟记二叉树的类定义以及根据列表创建二叉数的函数,已附在Solution中。
 
+法二:
+采用深度优先搜索遍历模式,创建dfs函数,入参为结点及深度,两种方法复杂度均相同
+
 时间复杂度:O(n)
-空间复杂度:O(h),其中h为二叉树的深度,为递归调用时栈的大小
+空间复杂度:O(n),其空间复杂度为二叉树的深度(递归调用时栈的大小),最差情况下二叉树为一条链
 """
 from typing import Optional, List
 from collections import deque
@@ -1305,12 +1309,25 @@ class TreeNode:
         
 class Solution:
     def maxDepth(self, root: Optional[TreeNode]) -> int:
-        if root == None:
-            return 0
-        leftDepth = self.maxDepth(root.left)
-        rightDepth = self.maxDepth(root.right)
-        return max(leftDepth, rightDepth) + 1
+        # 法一
+        # if root == None:
+        #     return 0
+        # leftDepth = self.maxDepth(root.left)
+        # rightDepth = self.maxDepth(root.right)
+        # return max(leftDepth, rightDepth) + 1
 
+        # 法二
+        ans = 0
+        def dfs(node: Optional[TreeNode], depth):
+            if node is None:
+                return
+            depth += 1
+            nonlocal ans
+            ans = max(ans, depth)
+            dfs(node.left, depth)
+            dfs(node.right, depth)
+        dfs(root, 0)
+        return ans
 
     def create_binary_tree(self, nums: List[Optional[int]]) -> Optional[TreeNode]:
         if nums is None or len(nums) == 0:
