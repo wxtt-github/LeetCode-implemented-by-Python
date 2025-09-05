@@ -1494,13 +1494,75 @@ class Solution:
 5.[1448. 统计二叉树中好节点的数目](https://leetcode.cn/problems/count-good-nodes-in-binary-tree/)
 
 ```python
+"""
+思路:
+好结点即其值不小于其所有上级结点的结点,因此可以用深度优先搜索dfs,
+入参为结点和其所有上级结点的最大值,当该结点满足大于其值时,统计,
+不断更新其最大值,传入左右子树即可。
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional
+import math
+class Solution:
+    def goodNodes(self, root: Optional[TreeNode]) -> int:
+        if root == None:
+            return 0
+        ans = 0
+        def dfs(node, max_num):
+            nonlocal ans
+            if node == None:
+                return
+            if node.val >= max_num:
+                ans += 1
+            dfs(node.left, max(node.val, max_num))
+            dfs(node.right, max(node.val, max_num))
+        dfs(root, -math.inf)
+        return ans
 ```
 
 6.[987. 二叉树的垂序遍历](https://leetcode.cn/problems/vertical-order-traversal-of-a-binary-tree/)
 
 ```python
+"""
+思路:本题核心主要分两步骤,一是遍历,二是获取每个结点的(col, row, val)信息,可以
+用dfs遍历,然后将其存入defaultdict哈希表中,以键为列,值为(row, val)二元组的列表,
+获得所有信息后,先对键进行排序遍历,然后对其元组列表进行排序,至此,列,行,值均完成了
+排序,统计即可
 
+复杂度的计算:对于时间复杂度,关键在于排序的数量,即同行同列的数量,从(0, 0)出发,
+先向左再向右,得到(2, 0),先向右再向左,也得到(2, 0),这两个同样坐标的点也重复操作
+得到4个在(4, 0)的结点,则当又2^k个结点在同一坐标时,增加2^(k+2)个结点,可以得到
+2^(k+1)个在同一坐标的结点,当n=2^(k+2)-3时,最多又2^k个结点在同一坐标,则需要排序
+的点大约为n/4个,则排序的复杂度为O(nlogn),对于空间复杂度,当排为链状时,即每个结点
+列坐标不同时,空间复杂度为O(n)
+时间复杂度:O(nlogn)
+空间复杂度:O(n)
+"""
+from typing import Optional, List
+from collections import defaultdict
+class Solution:
+    def verticalTraversal(self, root: Optional[TreeNode]) -> List[List[int]]:
+        hash_table = defaultdict(list)
+        if root == None:
+            return []
+        def dfs(node, row, col):
+            if node == None:
+                return
+            nonlocal hash_table
+            hash_table[col].append((row, node.val))
+            dfs(node.left, row+1, col-1)
+            dfs(node.right, row+1, col+1)
+        dfs(root, 0, 0)
+        ans = []
+        for key in sorted(hash_table.keys()):
+            hash_table[key].sort()
+            temp = []
+            for _, value in hash_table[key]:
+                temp.append(value)
+            ans.append(temp)
+        return ans
 ```
 
 ### 二叉树与递归-灵活运用
