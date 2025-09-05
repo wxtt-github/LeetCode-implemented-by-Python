@@ -1363,19 +1363,132 @@ if __name__ == '__main__':
 2.[111. 二叉树的最小深度](https://leetcode.cn/problems/minimum-depth-of-binary-tree/)
 
 ```python
+"""
+思路:
+两种写法,自顶向下或自底向上,即递或归
+法一:深度优先遍历,与104题类似,入参为结点和其上一级的深度,在求最大深度时,
+最大的深度一定是在叶节点上出现,因此直接max(ans, current_depth)即可求得,
+而在求最小深度时,需要增加一个叶节点的判断,我们才进行ans的更新,以防非叶节点
+对结果的干扰。
 
+法二:当为叶结点时,返回0,当结点的右结点不存在时,则返回其左子树的深度+1,
+当结点的左结点不存在时,则返回其右子树的深度+1,当左右子树均存在时,则取其
+左右子树最小深度+1。
+
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional, List
+from collections import deque
+import math
+
+class Solution:
+    # 自顶向下(递),与104题类似,增加一个叶节点判断
+    def minDepth(self, root: Optional[TreeNode]) -> int:
+        if root == None:
+            return 0
+        # ans = 1e6
+        ans = math.inf
+        def dfs(node, depth):
+            nonlocal ans
+            # 最优性剪枝
+            if depth + 1 >= ans:
+                return
+            if node == None:
+                return
+            if node.left == None and node.right == None:
+                ans = min(ans, depth+1)
+            dfs(node.left, depth+1)
+            dfs(node.right, depth+1)
+        dfs(root, 0)
+        return ans
+    
+    # 自底向上(归)
+    # def minDepth(self, root: Optional[TreeNode]) -> int:
+    #     if root == None:
+    #         return 0
+    #     if root.right == None:
+    #         return self.minDepth(root.left) + 1
+    #     if root.left == None:
+    #         return self.minDepth(root.right) + 1
+    #     if root.left != None and root.right != None:
+    #         return min(self.minDepth(root.left), self.minDepth(root.right)) + 1
 ```
 
 3.[112. 路径总和](https://leetcode.cn/problems/path-sum/)
 
 ```python
+"""
+思路:
+分为两种方法,递增法和递减法。
+法一:使用深度优先搜索dfs,入参为结点和上一级结点累加的数值,注意路径是根到叶节点,
+因此最后需要判断传入的结点是否为叶节点
+法二:递减法,每一级都减去当前结点的val,然后判断该结点是否是叶结点,若为叶节点,则
+直接返回True,然后返回递归函数,传入其左子树和右子树
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional
+class Solution:
+    # 递增判断法
+    # def hasPathSum(self, root: Optional[TreeNode], targetSum: int) -> bool:
+    #     if root is None:
+    #         return False
+    #     ans = False
+    #     def dfs(node, val):
+    #         nonlocal ans
+    #         if node is None:
+    #             return val
+    #         if dfs(node.left, val + node.val) == targetSum and node.left == None and node.right == None:
+    #             ans = True
+    #         if dfs(node.right, val + node.val) == targetSum and node.left == None and node.right == None:
+    #             ans = True
+    #     dfs(root, 0)
+    #     return ans
+
+    # 递减判断法
+    def hasPathSum(self, root: Optional[TreeNode], targetSum: int) -> bool:
+        if root == None:
+            return False
+        targetSum -= root.val
+        if targetSum == 0 and root.left == None and root.right == None:
+            return True
+        return self.hasPathSum(root.left, targetSum) or self.hasPathSum(root.right, targetSum)
 ```
 
 4.[129. 求根节点到叶节点数字之和](https://leetcode.cn/problems/sum-root-to-leaf-numbers/)
 
 ```python
+"""
+思路:
+本题的核心实际上是求根结点到叶结点的路径,采用深度优先搜索dfs递归遍历即可,
+入参为结点和上一级结点的数值和,注意每下一级,可以将父节点数值乘10加上本级
+结点计算出总和。收集所有路径的和数值,累加即可,可以将数组ans优化掉,
+用常量ans=0进行累加,但不影响空间复杂度,仅是常量级优化。
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional
+class Solution:
+    def sumNumbers(self, root: Optional[TreeNode]) -> int:
+        if root == None:
+            return 0
+        # ans = []
+        ans = 0
+        def dfs(node, x):
+            nonlocal ans
+            if node.left == None and node.right == None:
+                # ans.append(x * 10 + node.val)
+                ans += x * 10 + node.val
+            if node.left:
+                dfs(node.left, x * 10 + node.val)
+            if node.right:
+                dfs(node.right, x * 10 + node.val)
+        dfs(root, 0)
+        # return sum(ans)
+        return ans
 ```
 
 5.[1448. 统计二叉树中好节点的数目](https://leetcode.cn/problems/count-good-nodes-in-binary-tree/)
