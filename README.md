@@ -1570,13 +1570,66 @@ class Solution:
 1.[100. 相同的树](https://leetcode.cn/problems/same-tree/)
 
 ```python
+"""
+思路:
+边边历,边检查,首先判断边界条件当有一结点为空时,则需要两个均为空,否则不满足,
+然后判断其值,若不相同则不满足,然后递归遍历两个结点的左子树和右子树,给了两种
+写法,一种dfs,一种直接递归
 
+时间复杂度:O(min(m, n))
+空间复杂度:O(min(m, n)),最坏情况退化成一条链
+"""
+from typing import Optional
+
+class Solution:
+    def isSameTree(self, p: Optional[TreeNode], q: Optional[TreeNode]) -> bool:
+        # 法一
+        # def dfs(node1: Optional[TreeNode], node2:Optional[TreeNode]):
+        #     if node1 == None or node2 == None:
+        #         if node1 != node2:
+        #             return False
+        #         else:
+        #             return True
+        #     if node1.val != node2.val:
+        #         return False
+        #     return dfs(node1.left, node2.left) and dfs(node1.right, node2.right)
+        # return dfs(p, q)
+    
+        # 法二
+        if p == None or q == None:
+            return p == q
+        if p.val != q.val:
+            return False
+        return self.isSameTree(p.left, q.left) and self.isSameTree(p.right, q.right)
 ```
 
 2.[101. 对称二叉树](https://leetcode.cn/problems/symmetric-tree/)
 
 ```python
+"""
+思路:和100题-相同的数类似,只需要将递归遍历改为递归结点1左子树和递归结点2右子树即可
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional
+
+class Solution:
+    def isSymmetric(self, root: Optional[TreeNode]) -> bool:
+        def dfs(node1, node2):
+            if node1 == None or node2 == None:
+                if node1 != node2:
+                    return False
+                else:
+                    return True
+            if node1.val != node2.val:
+                return False
+            return dfs(node1.left, node2.right) and dfs(node1.right, node2.left)
+        # 两种返回均可
+        # if root == None or (root.left == None and root.right == None):
+        #     return True
+        # return dfs(root.left, root.right)
+        return dfs(root, root)
 ```
 
 3.[110. 平衡二叉树](https://leetcode.cn/problems/balanced-binary-tree/)
