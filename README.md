@@ -1415,7 +1415,13 @@ class Solution:
     #         return min(self.minDepth(root.left), self.minDepth(root.right)) + 1
 ```
 
-3.[112. 路径总和](https://leetcode.cn/problems/path-sum/)
+3.[404. 左叶子之和](https://leetcode.cn/problems/sum-of-left-leaves/description/)
+
+```python
+
+```
+
+4.[112. 路径总和](https://leetcode.cn/problems/path-sum/)
 
 ```python
 """
@@ -1457,7 +1463,7 @@ class Solution:
         return self.hasPathSum(root.left, targetSum) or self.hasPathSum(root.right, targetSum)
 ```
 
-4.[129. 求根节点到叶节点数字之和](https://leetcode.cn/problems/sum-root-to-leaf-numbers/)
+5.[129. 求根节点到叶节点数字之和](https://leetcode.cn/problems/sum-root-to-leaf-numbers/)
 
 ```python
 """
@@ -1491,7 +1497,7 @@ class Solution:
         return ans
 ```
 
-5.[1448. 统计二叉树中好节点的数目](https://leetcode.cn/problems/count-good-nodes-in-binary-tree/)
+6.[1448. 统计二叉树中好节点的数目](https://leetcode.cn/problems/count-good-nodes-in-binary-tree/)
 
 ```python
 """
@@ -1522,7 +1528,7 @@ class Solution:
         return ans
 ```
 
-6.[987. 二叉树的垂序遍历](https://leetcode.cn/problems/vertical-order-traversal-of-a-binary-tree/)
+7.[987. 二叉树的垂序遍历](https://leetcode.cn/problems/vertical-order-traversal-of-a-binary-tree/)
 
 ```python
 """
@@ -1635,19 +1641,79 @@ class Solution:
 3.[110. 平衡二叉树](https://leetcode.cn/problems/balanced-binary-tree/)
 
 ```python
+"""
+思路:
+平衡二叉树即左子树与右子树的高度差不大于1,首先要写一个获取结点
+高度的函数,边界条件为结点为None时,返回0,否则返回其左右子树高度
+最大值加1,然后做特殊处理,用-1来标记一个结点的左右子树高度不平衡,
+当左右子树其中一个出现高度-1时,或左右子树高度差大于1时,返回-1
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional
+
+class Solution:
+    def isBalanced(self, root: Optional[TreeNode]) -> bool:
+        def getHeight(node: Optional[TreeNode]):
+            if node == None:
+                return 0
+            left_height = getHeight(node.left)
+            right_height = getHeight(node.right)
+            if left_height == -1 or right_height == -1 or abs(left_height - right_height) > 1:
+                return -1
+            return max(getHeight(node.left), getHeight(node.right)) + 1
+        return not getHeight(root)==-1
 ```
 
 4.[199. 二叉树的右视图](https://leetcode.cn/problems/binary-tree-right-side-view/)
 
 ```python
+"""
+思路:
+dfs深度优先搜索,先遍历右子树,确保右结点先被遍历,当第一个深度出现时,
+则添加进ans中
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional, List
+
+class Solution:
+    def rightSideView(self, root: Optional[TreeNode]) -> List[int]:
+        ans = []
+        def dfs(node: Optional[TreeNode], depth: int):
+            if node == None:
+                return
+            if depth == len(ans):
+                ans.append(node.val)
+            dfs(node.right, depth+1)
+            dfs(node.left, depth+1)
+        dfs(root, 0)
+        return ans
 ```
 
 5.[226. 翻转二叉树](https://leetcode.cn/problems/invert-binary-tree/)
 
 ```python
+"""
+思路:
+直接原地交换其左右子树,并递归地交换其子节点的左右子树,
+注意这里要原地操作,创建新树是无法AC的
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional
+
+class Solution:
+    def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        if root == None:
+            return None
+        root.left, root.right = root.right, root.left
+        self.invertTree(root.left)
+        self.invertTree(root.right)
+        return root
 ```
 
 6.[617. 合并二叉树](https://leetcode.cn/problems/merge-two-binary-trees/)
