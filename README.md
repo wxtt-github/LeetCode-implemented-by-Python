@@ -1719,19 +1719,93 @@ class Solution:
 6.[617. 合并二叉树](https://leetcode.cn/problems/merge-two-binary-trees/)
 
 ```python
+"""
+思路:
+递归合并,先处理3种边界条件,然后递归其左右子树即可
 
+时间复杂度:O(min(m, n))
+空间复杂度:O(min(m, n))
+"""
+from typing import Optional
+
+class Solution:
+    def mergeTrees(self, root1: Optional[TreeNode], root2: Optional[TreeNode]) -> Optional[TreeNode]:
+        if root1 == None and root2 == None:
+            return None
+        if root1 == None and root2:
+            return root2
+        if root1 and root2 == None:
+            return root1
+        root1.left = self.mergeTrees(root1.left, root2.left)
+        root1.right = self.mergeTrees(root1.right, root2.right)
+        root1.val += root2.val
+        return root1
 ```
 
 7.[1026. 节点与其祖先之间的最大差值](https://leetcode.cn/problems/maximum-difference-between-node-and-ancestor/)
 
 ```python
+"""
+思路:
+求祖先到其子节点的最大差值,仅需维护其祖先结点到子节点的路径的最大值与最小值即可,
+然后用该结点的差值来更新ans即可,深度优先搜索dfs入参为结点,最小值,最大值
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional
+
+class Solution:
+    def maxAncestorDiff(self, root: Optional[TreeNode]) -> int:
+        ans = 0
+        def dfs(node: Optional[TreeNode], min_val, max_val):
+            nonlocal ans
+            if node == None:
+                return
+            temp = max(abs(min_val - node.val), abs(max_val - node.val))
+            if temp > ans:
+                ans = temp
+            dfs(node.left, min(min_val, node.val), max(max_val, node.val))
+            dfs(node.right, min(min_val, node.val), max(max_val, node.val))
+        dfs(root, root.val, root.val)
+        return ans
 ```
 
 8.[1080. 根到叶路径上的不足节点](https://leetcode.cn/problems/insufficient-nodes-in-root-to-leaf-paths/)
 
 ```python
+"""
+思路:
+首先要理解"不足结点"的定义,即所有经过该结点的"根->叶"路径的和,均满足小于limit,
+则该结点为不足结点,考虑叶结点和非叶结点的情况,对于一个叶结点,遍历时拿到其上的
+路径和,然后加上val与limit判断即可,而对于非叶结点,当且仅当其左右子树均为None时,
+才进行删除,这是因为,考虑"不足结点"的定义,若其子叶结点均为不足结点,则其也为"不足结点",
+根据递归的顺序,若其子叶结点均被删除时,则该结点也变成了新的叶结点,会被边界条件处理,
+若其为非叶结点,则直接返回即可。
+为了能够使用递归,对入参进行了优化,用limit减去val值,若大于0,且该结点为非叶结点,则返回
+None,否则直接返回其结点,然后对其左右子树递归传入新的limit值,最后判断保留非叶结点
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional
+
+class Solution:
+    def sufficientSubset(self, root: Optional[TreeNode], limit: int) -> Optional[TreeNode]:
+        if root == None:
+            return None
+        limit -= root.val
+        if root.left == None and root.right == None:
+            if limit > 0:
+                return None
+            else:
+                return root
+        root.left = self.sufficientSubset(root.left, limit)
+        root.right = self.sufficientSubset(root.right, limit)
+        if root.left or root.right:
+            return root
+        # else:
+        #     return None
 ```
 
 ### 二叉树与递归-前序-中序-后序
