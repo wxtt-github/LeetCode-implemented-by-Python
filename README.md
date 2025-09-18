@@ -1810,10 +1810,53 @@ class Solution:
 
 ### 二叉树与递归-前序-中序-后序
 
-1.[98. 验证二叉搜索树](https://leetcode.cn/problems/validate-binary-search-tree/)
+1.[98. 验证二叉搜索树](https://leetcode.cn/problems/validate-binary-search-tree/)*
 
 ```python
+"""
+思路:
+对于前序:遵循"根-左-右",先处理边界条件node==None,对于二叉搜索树根结点,
+其需满足严格大于左子树,严格小于右子树,若不满足则返回False,然后递归遍历
+其左右子树即可
 
+对于中序:遵循"左-根-右",对一颗二叉搜索树,若按中序遍历,则实际上得到的序列
+是一个递增的序列,则首先要定义一个pre初始为-math.inf,先处理边界条件,
+然后按"左-根-右"顺序处理,对于根,要进行判断的同时,更新pre
+
+对于后序:目前还不太理解,后续更新
+
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional
+import math
+
+class Solution:
+    # 前序
+    # def isValidBST(self, root: Optional[TreeNode]) -> bool:
+    #     def dfs(node: Optional[TreeNode], min_val, max_val):
+    #         if node == None:
+    #             return True
+    #         if node.val > min_val and node.val < max_val:
+    #             pass
+    #         else:
+    #             return False
+    #         return dfs(node.left, min_val, node.val) and dfs(node.right, node.val, max_val)
+    #     return dfs(root, -math.inf, math.inf)
+    
+    # 中序
+    pre = -math.inf
+    def isValidBST(self, root: Optional[TreeNode]) -> bool:
+        if root == None:
+            return True
+        if not self.isValidBST(root.left):
+            return False
+        if root.val <= self.pre:
+            return False
+        self.pre = root.val
+        if not self.isValidBST(root.right):
+            return False
+        return True
 ```
 
 2.[938. 二叉搜索树的范围和](https://leetcode.cn/problems/range-sum-of-bst/)
