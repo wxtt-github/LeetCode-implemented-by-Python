@@ -1994,7 +1994,7 @@ class Solution:
         return ans
 ```
 
-5.[105. 从前序与中序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
+5.[105. 从前序与中序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)*
 
 ```python
 """
@@ -2037,22 +2037,92 @@ class Solution:
         return dfs(0, len(preorder), 0, len(inorder))
 ```
 
-6.[106. 从中序与后序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/)
+6.[106. 从中序与后序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/)*
 
 ```python
+"""
+思路:
+对哈希表的边界处理还不太理解,以后补充,提供直接递归写法
 
+法一:
+时间复杂度:O(n^2)
+空间复杂度:O(n^2)
+"""
+from typing import Optional, List
+
+class Solution:
+    # 法一
+    def buildTree(self, inorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
+        if not postorder:
+            return None
+        
+        x = postorder[-1]
+        left_size = inorder.index(x)
+        left = self.buildTree(inorder[:left_size], postorder[:left_size])
+        right = self.buildTree(inorder[left_size + 1:], postorder[left_size:-1])
+        return TreeNode(x, left, right)
 ```
 
-7.[889. 根据前序和后序遍历构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/)
+7.[889. 根据前序和后序遍历构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-postorder-traversal/)*
 
 ```python
+"""
+思路:
+对哈希表的边界处理还不太理解,以后补充,目前提供直接递归写法,这里的关键点在于构造出的
+树可能不唯一,不妨用根后的第一个值假定为新根
 
+法一:
+时间复杂度:O(n^2)
+空间复杂度:O(n^2)
+"""
+from typing import Optional, List
+
+class Solution:
+    def constructFromPrePost(self, preorder: List[int], postorder: List[int]) -> Optional[TreeNode]:
+        if not preorder:
+            return None
+        if len(preorder) == 1:
+            return TreeNode(preorder[0])
+        
+        left_size = postorder.index(preorder[1]) + 1
+        left = self.constructFromPrePost(preorder[1:1+left_size], postorder[:left_size])
+        right = self.constructFromPrePost(preorder[1+left_size:], postorder[left_size:-1])
+        return TreeNode(preorder[0], left, right)
 ```
 
 8.[1110. 删点成林](https://leetcode.cn/problems/delete-nodes-and-return-forest/)
 
 ```python
+"""
+思路:
+采用后序遍历"左-右-根"的方式,写一个dfs,为了达到O(1)查找,用集合转换列表,使得用哈希表存储
 
+时间复杂度:O(n+m)
+空间复杂度:O(n+m)
+"""
+from typing import Optional, List
+
+class Solution:
+    def delNodes(self, root: Optional[TreeNode], to_delete: List[int]) -> List[TreeNode]:
+        ans = []
+        s = set(to_delete)
+        def dfs(node: Optional[TreeNode]):
+            if node == None:
+                return None
+            node.left = dfs(node.left)
+            node.right = dfs(node.right)
+            if node.val not in s:
+                return node
+            if node.left:
+                ans.append(node.left)
+            if node.right:
+                ans.append(node.right)
+            return None
+        
+        if dfs(root):
+            ans.append(root)
+        
+        return ans
 ```
 
 ### 二叉树与递归-最近公共祖先
