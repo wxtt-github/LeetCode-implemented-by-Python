@@ -1862,25 +1862,179 @@ class Solution:
 2.[938. 二叉搜索树的范围和](https://leetcode.cn/problems/range-sum-of-bst/)
 
 ```python
+"""
+思路:
+采用先序遍历,写一个dfs,处理空的边界条件,按"根-左-右"的顺序遍历即可,但是这样就没有利用到
+二叉搜索树的性质,虽然不影响复杂度,但从算法的角度不是最优做法,特此补充一个递归做法,若该结点
+的值不在范围内,则递归其相应子树,若在范围内,则ans加上其值,并递归左右子树
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional
+
+class Solution:
+    # 法一
+    def rangeSumBST(self, root: Optional[TreeNode], low: int, high: int) -> int:
+        ans = 0
+        def dfs(node: Optional[TreeNode]):
+            nonlocal ans
+            if node == None:
+                return
+            if node.val >= low and node.val <= high:
+                ans += node.val
+            dfs(node.left)
+            dfs(node.right)
+        dfs(root)
+        return ans
+    
+    # 法二
+    def rangeSumBST(self, root: Optional[TreeNode], low: int, high: int) -> int:
+        if root == None:
+            return 0
+        x = root.val
+        if x > high:
+            return self.rangeSumBST(root.left, low, high)
+        if x < low:
+            return self.rangeSumBST(root.right, low, high)
+        return x + self.rangeSumBST(root.left, low, high) + self.rangeSumBST(root.right, low, high)
 ```
 
 3.[2476. 二叉搜索树最近节点查询](https://leetcode.cn/problems/closest-nodes-queries-in-a-binary-search-tree/)
 
 ```python
+"""
+思路:
+对于二叉搜索树,可以通过一个中序遍历得到一个严格递增的数组nums,实现一个二分查找的算法
+lower_bound(arr, target),返回第一个大于等于target的值的坐标index,若arr的元素全小于target,
+则会返回len(arr),然后根据得到坐标index确定mn和mx即可,注意这里若找到index,则只有
+两种情况,若index-1为-1,则直接返回mn=-1即可,若index-1>0,则nums[index-1]一定是满足
+小于query的最大的数mn
 
+时间复杂度:O(n+q*logn)
+空间复杂度:O(n)
+"""
+from typing import Optional, List
+import math
+
+class Solution:
+    def closestNodes(self, root: Optional[TreeNode], queries: List[int]) -> List[List[int]]:
+        def lower_bound(arr, target):
+            left = 0
+            right = len(arr) - 1
+            while left <= right:
+                mid = (left + right) // 2
+                if arr[mid] < target:
+                    left = mid + 1
+                else:
+                    right = mid - 1
+            return left
+        
+        nums = []
+        def dfs(node: Optional[TreeNode]):
+            if node == None:
+                return
+            dfs(node.left)
+            nums.append(node.val)
+            dfs(node.right)
+
+        dfs(root)
+        ans = []
+        for i in queries:
+            index = lower_bound(nums, i)
+            if index == len(nums):
+                mx = -1
+            else:
+                mx = nums[index]
+            if index == len(nums) or nums[index] != i:
+                index -= 1
+            if index == -1:
+                mn = -1
+            else:
+                mn = nums[index]
+
+            ans.append([mn, mx])
+        return ans
 ```
 
 4.[1373. 二叉搜索子树的最大键值和](https://leetcode.cn/problems/maximum-sum-bst-in-binary-tree/)
 
 ```python
+"""
+思路:需要采用后序遍历"左-右-根"的方式,每次遍历结点返回一个三元组,分别为树的最小值,树的最大值和树的总和。
+先处理边界条件结点为空的情况,二叉搜索树的必要条件,即左子树的最大值要小于根结点,右子树的最小值要大于根结点,
+为使空结点能满足必要条件,则返回inf, -inf, 0,使得其满足,然后递归遍历其左右子树,判断根结点是否满足二叉搜索
+树的必要条件,若不满足,则返回-inf, inf, 0,若满足,则计算总和s = l_sum + r_sum + x,然后更新ans,最后返回
+该二叉搜索树的最小值,最大值和总和。之所以能用必要条件来解决这个问题,是因为采用后续遍历的方式,即"归",从最小
+的子树开始归并,若每个子树都是二叉搜索树,则组合成的树也是二叉搜索树。
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional
+from math import inf
+
+class Solution:
+    def maxSumBST(self, root: Optional[TreeNode]) -> int:
+        ans = 0
+        def dfs(node: Optional[TreeNode]):
+            if node == None:
+                return inf, -inf, 0
+            l_min, l_max, l_sum = dfs(node.left)
+            r_min, r_max, r_sum = dfs(node.right)
+            x = node.val
+            if l_max >= x or r_min <= x:
+                return -inf, inf, 0
+            s = l_sum + r_sum + x
+            nonlocal ans
+            ans = max(ans, s)
+            return min(l_min, x), max(r_max, x), s
+        
+        dfs(root)
+        return ans
 ```
 
 5.[105. 从前序与中序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/)
 
 ```python
+"""
+思路:分为直接递归写法和利用哈希表递归写法,关键在于确定边界
 
+法一:
+时间复杂度:O(n^2)
+空间复杂度:O(n^2)
+法二:
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional, List
+
+class Solution:
+    # 法一
+    def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
+        if not preorder:
+            return None
+        left_size = inorder.index(preorder[0])
+        left = self.buildTree(preorder[1:1+left_size], inorder[:left_size])
+        right = self.buildTree(preorder[1+left_size:], inorder[1+left_size:])
+        return TreeNode(preorder[0], left, right)
+    
+    # 法二
+    def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
+        index = {}
+        for i, x in enumerate(inorder):
+            index[x] = i
+        
+        def dfs(pre_l, pre_r, in_l, in_r):
+            if pre_l == pre_r:
+                return None
+            
+            left_size = index[preorder[pre_l]] - in_l
+            left = dfs(pre_l + 1, pre_l + 1 + left_size, in_l, in_l + left_size)
+            right = dfs(pre_l + 1 + left_size, pre_r, in_l + 1 + left_size, in_r)
+            return TreeNode(preorder[pre_l], left, right)
+        
+        return dfs(0, len(preorder), 0, len(inorder))
 ```
 
 6.[106. 从中序与后序遍历序列构造二叉树](https://leetcode.cn/problems/construct-binary-tree-from-inorder-and-postorder-traversal/)
