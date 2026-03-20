@@ -2130,19 +2130,105 @@ class Solution:
 1.[236. 二叉树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/)
 
 ```python
+"""
+思路：
+首先采用递归的思想，按先序遍历，关键是定义边界条件。考虑递归传入左右子树，当找到p或q或None时返回，
+若左右子树均找到，考虑只有两层的结构，即一个p一个q，则返回其root，若其一边为None，则只采用另一边结果即可。
 
+时间复杂度：O(n)
+空间复杂度：O(n)
+"""
+class Solution:
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        if root in [p, q, None]:
+            return root
+        left = self.lowestCommonAncestor(root.left, p, q)
+        right = self.lowestCommonAncestor(root.right, p, q)
+        if left and right:
+            return root
+        return left or right
 ```
 
 2.[235. 二叉搜索树的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-search-tree/)
 
 ```python
+"""
+思路：
+本题与236题的区别是该树为二叉搜索树，直接采用236题解法也可以，复杂度无差异，
+但为了剪枝优化，考虑p和q的位置，要么都在左子树，要么都在右子树，要么一个结点
+是另一个的祖先，要么一左一右，而二叉搜索树可以很好地通过值来判断位置关系，
+若都在左子树，则只需返回递归左子树的结果，若都在右子树，则只需返回递归右子树的结果，
+若一个结点是另一个的祖先，则返回该祖先结点即根结点即可,若一左一右，则也返回根节点即可。
 
+时间复杂度：O(n)
+空间复杂度：O(n)
+"""
+class Solution:
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        # 法一
+        # if root in [p, q, None]:
+        #     return root
+        # left = self.lowestCommonAncestor(root.left, p, q)
+        # right = self.lowestCommonAncestor(root.right, p, q)
+        # if left and right:
+        #     return root
+        # return left or right
+
+        # 法二
+        x = root.val
+        if p.val < x and q.val < x:
+            return self.lowestCommonAncestor(root.left, p, q)
+        if p.val > x and q.val > x:
+            return self.lowestCommonAncestor(root.right, p, q)
+        return root
 ```
 
 3.[1123. 最深叶节点的最近公共祖先](https://leetcode.cn/problems/lowest-common-ancestor-of-deepest-leaves/)
 
 ```python
+"""
+思路：
+两种方法，一种方法是定义ans和max_depth，然后dfs遍历，不断更新最大深度，当左右子树的深度
+相等且与最大深度相同时，则ans更新为node。另一种方法是dfs返回子树的最大高度以及祖父结点，
+当node==None时返回0, None，然后递归遍历其左右子树，若左子树高，则返回左子树树高+1与其祖父
+结点，若右子树高，则返回右子树树高+1与其祖父结点，若同样高则返回左子树树高+1与node。
 
+时间复杂度：O(n)
+空间复杂度：O(n)
+"""
+from typing import Optional
+
+class Solution:
+    def lcaDeepestLeaves(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        # 法一
+        # ans = None
+        # max_depth = -1
+        # def dfs(node, depth):
+        #     nonlocal ans, max_depth
+        #     if node == None:
+        #         max_depth = max(max_depth, depth)
+        #         return depth
+        #     left_depth = dfs(node.left, depth+1)
+        #     right_depth = dfs(node.right, depth+1)
+        #     if left_depth == right_depth == max_depth:
+        #         ans = node
+        #     return max(left_depth, right_depth)
+        # dfs(root, 0)
+        # return ans
+
+        # 法二
+        def dfs(node):
+            if node == None:
+                return 0, None
+            left_height, left_lca = dfs(node.left)
+            right_height, right_lca = dfs(node.right)
+            if left_height > right_height:
+                return left_height+1, left_lca
+            elif left_height < right_height:
+                return right_height+1, right_lca
+            else:
+                return left_height+1, node
+        return dfs(root)[1]
 ```
 
 ### 二叉树-BFS
