@@ -2236,31 +2236,226 @@ class Solution:
 1.[102. 二叉树的层序遍历](https://leetcode.cn/problems/binary-tree-level-order-traversal/)
 
 ```python
+"""
+思路：
+层序遍历首先需要使用队列解决较为简单，from collections import deque，大致思路是
+设置一个while循环，条件是队列不为空，pop一个结点后如果其有左右子树，则将其添加进队尾，
+如此便解决了层序遍历的问题，在本题中，还有一个问题，就是列表嵌套列表的问题，这个需要在
+while循环中设置一个for循环，创建一个临时空列表，然后根据当前队列长度来pop结点，添加其值
+进空列表中，如此解决嵌套问题。
 
+时间复杂度：O(n)
+空间复杂度：O(n)
+"""
+from typing import Optional, List
+from collections import deque
+
+class Solution:
+    def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+        if root == None:
+            return []
+        q = deque()
+        ans = []
+        q.append(root)
+        while len(q) != 0:
+            temp_arr = []
+            for i in range(len(q)):
+                node = q.popleft()
+                temp_arr.append(node.val)
+                if node.left:
+                    q.append(node.left)
+                if node.right:
+                    q.append(node.right)
+            ans.append(temp_arr)
+        return ans
 ```
 
 2.[103. 二叉树的锯齿形层序遍历](https://leetcode.cn/problems/binary-tree-zigzag-level-order-traversal/)
 
 ```python
+"""
+思路：
+在102题中，我们已经学会层序遍历的方法以及如何处理嵌套返回的问题，这题锯齿形层序遍历，
+在我们层序遍历方法不变的情况下，无非是设置一个flag，然后将子列表在合适的时候进行逆置，
+可以用temp_arr[:, :, -1]的方法进行逆置，也可以像我下面的方法一样，用双端队列q2来代替
+temp_arr，在合适的时候，适时选择往队头插还是往队尾插，然后进行强转append即可。
 
+时间复杂度：O(n)
+空间复杂度：O(n)
+"""
+from typing import Optional, List
+from collections import deque
+
+class Solution:
+    def zigzagLevelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+        if root == None:
+            return []
+        ans = []
+        flag = True
+        q1 = deque()
+        q1.append(root)
+        while len(q1) != 0:
+            q2 = deque()
+            for i in range(len(q1)):
+                node = q1.popleft()
+                if flag == True:
+                    q2.append(node.val)
+                else:
+                    q2.appendleft(node.val)
+                if node.left:
+                    q1.append(node.left)
+                if node.right:
+                    q1.append(node.right)
+            ans.append(list(q2))
+            flag = not flag
+        return ans
 ```
 
 3.[513. 找树左下角的值](https://leetcode.cn/problems/find-bottom-left-tree-value/)
 
 ```python
+"""
+思路：
+有两种方法，可以用"根左右"dfs进行遍历，仅当出现更大的深度时，进行ans的更新即可，
+也可以用层序遍历，经过102题我们已经学会层序遍历的一般写法以及通过for循环实现嵌套
+列表的返回逻辑，可以设置一个flag，仅在每一层的第一个进行更新即可。对于层序遍历，
+也可以转换思路，在队列添加时，先添加左子树，再添加右子树，这样最后一个结点即为答案，
+但对复杂度无明显提升，属最优剪枝解法。
 
+时间复杂度：O(n)
+空间复杂度：O(n)
+"""
+from typing import Optional
+from collections import deque
+
+class Solution:
+    def findBottomLeftValue(self, root: Optional[TreeNode]) -> int:
+        # 法一
+        # ans = None
+        # max_depth = -1
+        # def dfs(node, depth):
+        #     nonlocal ans, max_depth
+        #     if depth > max_depth:
+        #         ans = node.val
+        #         max_depth = depth
+        #     if node.left:
+        #         dfs(node.left, depth+1)
+        #     if node.right:
+        #         dfs(node.right, depth+1)
+        # dfs(root, 0)
+        # return ans
+
+        # 法二
+        ans = None
+        q = deque()
+        q.append(root)
+        while len(q) != 0:
+            flag = True
+            for i in range(len(q)):
+                node = q.popleft()
+                if flag:
+                    ans = node.val
+                    flag = False
+                if node.left:
+                    q.append(node.left)
+                if node.right:
+                    q.append(node.right)
+        return ans
 ```
 
 4.[107. 二叉树的层序遍历 II](https://leetcode.cn/problems/binary-tree-level-order-traversal-ii/)
 
 ```python
+"""
+思路：
+正常写层序遍历写法，最后逆置ans即可。
 
+时间复杂度：O(n)
+空间复杂度：O(n)
+"""
+from typing import Optional, List
+from collections import deque
+
+class Solution:
+    def levelOrderBottom(self, root: Optional[TreeNode]) -> List[List[int]]:
+        if root == None:
+            return []
+        ans = []
+        q = deque([root])
+        while q:
+            temp_arr = []
+            for i in range(len(q)):
+                node = q.popleft()
+                temp_arr.append(node.val)
+                if node.left:
+                    q.append(node.left)
+                if node.right:
+                    q.append(node.right)
+            ans.append(temp_arr)
+        return ans[::-1]
 ```
 
 5.[116. 填充每个节点的下一个右侧节点指针](https://leetcode.cn/problems/populating-next-right-pointers-in-each-node/)
 
 ```python
+"""
+思路：
+法一：
+通过队列进行层序遍历，在for循环中进行拼接即可
+时间复杂度：O(n)
+空间复杂度：O(n)。因为二叉树最后一层约有n/2个结点
 
+法二：
+将二叉树的每一层视为一个链表。设置current_node，dummy_node，next_node，
+current_node用来遍历整个二叉树，dummy_node用于记录每一层的最左结点，
+next_node用于拼接每一层的结点。难点在于循环的设计，首先将current_node结点
+指向root，然后最外层是while current_node:循环，用于遍历整个二叉树的每一个结点，
+设置一个dummy_node和next_node，初始时next_node=dummy_node，同样设置一个
+while current_node的循环，然后将next_node指向current_node的左子树，
+并更新next_node值，然后指向右子树，并更新。然后将current_node赋值为
+current_node.next，这样能遍历完该层。最后在第二场循环外面，第一层循环里面
+将current_node赋值为dummy_node.next即可。
+
+时间复杂度：O(n)
+空间复杂度：O(n)
+"""
+from typing import Optional
+from collections import deque
+
+class Solution:
+    def connect(self, root: 'Optional[Node]') -> 'Optional[Node]':
+        # 法一
+        # if root == None:
+        #     return None
+        # q = deque([root])
+        # while q:
+        #     temp = q[0]
+        #     for i in range(len(q)):
+        #         node = q.popleft()
+        #         if i != 0:
+        #             temp.next = node
+        #             temp = node
+        #         if node.left:
+        #             q.append(node.left)
+        #         if node.right:
+        #             q.append(node.right)
+        # return root
+        
+        # 法二
+        current_node = root
+        while current_node:
+            dummy_node = Node()
+            next_node = dummy_node
+            while current_node:
+                if current_node.left:
+                    next_node.next = current_node.left
+                    next_node = current_node.left
+                if current_node.right:
+                    next_node.next = current_node.right
+                    next_node = current_node.right
+                current_node = current_node.next
+            current_node = dummy_node.next
+        return root
 ```
 
 6.[117. 填充每个节点的下一个右侧节点指针 II](https://leetcode.cn/problems/populating-next-right-pointers-in-each-node-ii/)
