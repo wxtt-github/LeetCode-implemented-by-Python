@@ -2461,19 +2461,146 @@ class Solution:
 6.[117. 填充每个节点的下一个右侧节点指针 II](https://leetcode.cn/problems/populating-next-right-pointers-in-each-node-ii/)
 
 ```python
+"""
+思路：
+同116题，关键在于将二叉树每一层当成一个链表进行处理，设置两层循环，第一层循环
+用于控制遍历整个二叉树的每个结点，第二层循环用于控制遍历每一层结点以进行其子结点
+的连接。
 
+时间复杂度：O(n)
+空间复杂度：O(1)
+"""
+class Solution:
+    def connect(self, root: 'Node') -> 'Node':
+        current_node = root
+        while current_node:
+            dummy_node = Node()
+            next_node = dummy_node
+            while current_node:
+                if current_node.left:
+                    next_node.next = current_node.left
+                    next_node = next_node.next
+                if current_node.right:
+                    next_node.next = current_node.right
+                    next_node = next_node.next
+                current_node = current_node.next
+            current_node = dummy_node.next
+        return root
 ```
 
 7.[2415. 反转二叉树的奇数层](https://leetcode.cn/problems/reverse-odd-levels-of-binary-tree/)
 
 ```python
+"""
+思路：
+层序遍历，搜集每一层的结点，当该层为奇数层时，使用一个列表vals来收集该层的值，
+可以使用vals.reverse()进行原地逆置，然后将值依次赋值到该层结点即可。
 
+时间复杂度：O(n)
+空间复杂度：O(n)
+"""
+from typing import Optional
+from collections import deque
+
+class Solution:
+    def reverseOddLevels(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        if root == None:
+            return None
+        q = deque([root])
+        depth = 0
+        while q:
+            current_depth_nodes = []
+            for i in range(len(q)):
+                node = q.popleft()
+                current_depth_nodes.append(node)
+                if node.left:
+                    q.append(node.left)
+                if node.right:
+                    q.append(node.right)
+            if depth % 2 == 1:
+                vals = [node.val for node in current_depth_nodes]
+                vals.reverse()
+                for i in range(len(vals)):
+                    current_depth_nodes[i].val = vals[i]
+            depth += 1
+        return root
 ```
 
 8.[2641. 二叉树的堂兄弟节点 II](https://leetcode.cn/problems/cousins-in-binary-tree-ii/)
 
 ```python
+"""
+思路：
+法一：层序遍历，获取每一层的结点和其父节点，然后更新每一层的结点值即可，需要注意拷贝一份值，
+否则会出现先更新干扰后更新的问题，但是这个方法时间复杂度为O(n^2)太高，无法通过所有用例，不推荐。
+时间复杂度：O(n^2)
+空间复杂度：O(n)
 
+法二：层序遍历，遍历每层结点，观察到其左/右子结点更新的逻辑本质上是用下一层的结点的所有值之和，
+减去其左，右子结点的值之和，然后用这个数来赋值，如此可以设置两个变量next_level_sum，current_nodes，
+next_level_sum用来记录下一层结点的值之和，current_nodes用来保存当前层结点，然后后面再遍历一次
+current_nodes，更新其每个元素的左右子结点
+时间复杂度：O(n)
+空间复杂度：O(n)
+"""
+from typing import Optional
+from collections import deque
+
+class Solution:
+    def replaceValueInTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        # 法一
+        # if root == None:
+        #     return None
+        # q = deque([[root, None]])
+        # while q:
+        #     current_depth_nodes = []
+        #     for i in range(len(q)):
+        #         node = q.popleft()
+        #         current_depth_nodes.append(node)
+        #         if node[0].left:
+        #             q.append([node[0].left, node[0]])
+        #         if node[0].right:
+        #             q.append([node[0].right, node[0]])
+        #     vals = []
+        #     for i, node1 in enumerate(current_depth_nodes):
+        #         total = 0
+        #         for j, node2 in enumerate(current_depth_nodes):
+        #             if j != i and node2[1] != node1[1]:
+        #                 total += node2[0].val
+        #         vals.append(total)
+        #     for i, node1 in enumerate(current_depth_nodes):
+        #         node1[0].val = vals[i]
+        # return root
+
+        # 法二
+        if root == None:
+            return None
+        q = deque([root])
+        root.val = 0
+        while q:
+            next_level_sum = 0
+            current_nodes = []
+            for i in range(len(q)):
+                node = q.popleft()
+                current_nodes.append(node)
+                if node.left:
+                    q.append(node.left)
+                    next_level_sum += node.left.val
+                if node.right:
+                    q.append(node.right)
+                    next_level_sum += node.right.val
+            for i in current_nodes:
+                left_num = 0
+                right_num = 0
+                if i.left:
+                    left_num = i.left.val
+                if i.right:
+                    right_num = i.right.val
+                if i.left:
+                    i.left.val = next_level_sum - left_num - right_num
+                if i.right:
+                    i.right.val = next_level_sum - left_num - right_num
+        return root
 ```
 
 ### 回溯-子集型
