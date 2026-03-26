@@ -2608,7 +2608,39 @@ class Solution:
 1.[17. 电话号码的字母组合](https://leetcode.cn/problems/letter-combinations-of-a-phone-number/)
 
 ```python
+"""
+思路：
+感官上其实像小学的组合题，从各个组中依次选择，然后进行组合，难点是如何定义变量，
+来优美地实现这个过程。首先要做一个映射表，将数字2-9与字符串进行映射，然后设置
+一个ans = []来保存答案，设置一个path = [''] * length来保存拼接的路径。写一个
+dfs函数，传入index，从0开始，用于记录路径，当i == length时，则说明路径已达尽头，
+收集拼接path列表成字符串，然后添加进ans列表中，记得return，当i != length时，
+首先用i来索引拿到digit，digit用于映射拿到字符串，然后遍历这个字符串，拿到字符c，
+将字符c赋值给path[i]，然后递归调用dfs(i+1)，至此完成整个算法
 
+时间复杂度：O(n*4^n)。因为极限情况下，长度为n时，需要遍历4^n次，并且每次最后都要拼接
+整个长度为n的path数组，因此复杂度为O(n*4^n)。
+空间复杂度：O(n)
+"""
+from typing import List
+
+class Solution:
+    def letterCombinations(self, digits: str) -> List[str]:
+        map_c = ["", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"]
+        length = len(digits)
+        if length == 0:
+            return []
+        ans = []
+        path = [''] * length
+        def dfs(i):
+            if i == length:
+                ans.append(''.join(path))
+                return
+            for c in map_c[int(digits[i])]:
+                path[i] = c
+                dfs(i+1)
+        dfs(0)
+        return ans
 ```
 
 2.[78. 子集](https://leetcode.cn/problems/subsets/)
