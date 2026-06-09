@@ -2616,7 +2616,8 @@ class Solution:
 dfs函数，传入index，从0开始，用于记录路径，当i == length时，则说明路径已达尽头，
 收集拼接path列表成字符串，然后添加进ans列表中，记得return，当i != length时，
 首先用i来索引拿到digit，digit用于映射拿到字符串，然后遍历这个字符串，拿到字符c，
-将字符c赋值给path[i]，然后递归调用dfs(i+1)，至此完成整个算法
+将字符c赋值给path[i]，然后递归调用dfs(i+1)，至此完成整个算法。对于长度不定的拼接，
+循环并不能解决问题，需要通过递归回溯来解决。
 
 时间复杂度：O(n*4^n)。因为极限情况下，长度为n时，需要遍历4^n次，并且每次最后都要拼接
 整个长度为n的path数组，因此复杂度为O(n*4^n)。
@@ -2646,13 +2647,131 @@ class Solution:
 2.[78. 子集](https://leetcode.cn/problems/subsets/)
 
 ```python
+"""
+思路：
+法一："选与不选"的思想
+首先设置一个ans用于储存答案，然后设置一个path用于记录路径，设置一个dfs遍历，i从0开始，
+对于"选与不选"的情况，先写不选的情况，再写选的情况，对于不选的情况，直接dfs(i+1)即可，
+对于选的情况，将nums[i]加进path的路径中，然后再dfs(i+1)，
+最后要恢复现场将path数组pop一下，最后是边界条件的处理，当i与length相等时，
+将path的copy加进ans中return即可。
 
+法二："从答案出发"的思想
+首先设置一个ans用于储存答案，然后设置一个path用于记录路径，核心在于，每次都强制选一个
+数，并且选完后要把他加进path中，由于排列的关系，[1, 2]和[2, 1]会重复计算，因此我们
+在选数时需要强制下一个选的数的下标要大于当前选数的下标，因此在内部设置一个
+for j in range(i, length)的循环，对于每个节点直接将path添加进ans中，当i与length
+相等时，进行return。以nums = [1, 2, 3]举例，大致的路径就是加入[]，然后加入[1]，
+然后加入[1, 2]，然后加入[1, 2, 3]，然后pop三次，然后加入[2]，加入[2, 3]，然后pop
+两次，然后加入[3]，至此完成全过程。
+
+时间复杂度：O(n*2^n)
+空间复杂度：O(n)
+"""
+from typing import List
+
+class Solution:
+    def subsets(self, nums: List[int]) -> List[List[int]]:
+        # 法一:
+        # ans = []
+        # path = []
+        # length = len(nums)
+
+        # def dfs(i):
+        #     if i == length:
+        #         ans.append(path.copy())
+        #         return
+        #     dfs(i+1)
+        #     path.append(nums[i])
+        #     dfs(i+1)
+        #     path.pop()
+
+        # dfs(0)
+        # return ans
+
+        # 法二:
+        ans = []
+        path = []
+        length = len(nums)
+
+        def dfs(i):
+            ans.append(path.copy())
+            if i == length:
+                return
+            
+            for j in range(i, length):
+                path.append(nums[j])
+                dfs(j+1)
+                path.pop()
+            
+        dfs(0)
+        return ans
 ```
 
 3.[131. 分割回文串](https://leetcode.cn/problems/palindrome-partitioning/)
 
 ```python
+"""
+思路:
+法一："从答案出发"的思想
+首先设置一个ans用于储存答案，然后设置一个path用于记录路径。其中，只有完全分割回文时，
+才会将整个path添加进ans中，因此当i与length相等时，才进行append操作。然后设置一个
+for j in range(i, length)的循环，t = s[i:j+1]，由于j在变，用于代表分割的部分，
+然后判断是否是回文，若是回文则进行append，然后继续递归dfs(j+1)，用于让i变为j+1，
+然后恢复现场pop即可。
 
+法二："选与不选"的思想
+首先设置一个ans用于储存答案，然后设置一个path用于记录路径。核心思想在于，对于整个
+字符串，前段可以进行分割，也可以进行延长，后段代表剩余分割的部分。因此当i与length
+相等时，代表分割完成，将path添加进ans中。当i<length-1时，代表还可以延长前段，
+则进行递归遍历dfs(i+1, start)，当i==length-1时，则必须分割了，这里start代表
+前段的最开始的位置。前面写了延长的情况，接下来是分割的情况，得到t=s[start:i+1]，
+然后判断是否是回文，若是回文，则接着递归剩余部分，此时start也变为i+1，则dfs(i+1, i+1)，
+然后恢复现场即可。
+
+时间复杂度：O(n*2^n)
+空间复杂度：O(n)
+"""
+from typing import List
+
+class Solution:
+    def partition(self, s: str) -> List[List[str]]:
+        # ans = []
+        # path = []
+        # length = len(s)
+
+        # def dfs(i):
+        #     if i == length:
+        #         ans.append(path.copy())
+
+        #     for j in range(i, length):
+        #         t = s[i:j+1]
+        #         if t == t[::-1]:
+        #             path.append(t)
+        #             dfs(j+1)
+        #             path.pop()
+
+        # dfs(0)
+        # return ans
+
+        ans = []
+        path = []
+        length = len(s)
+        def dfs(i, start):
+            if i == length:
+                ans.append(path.copy())
+                return
+            if i < length - 1:
+                dfs(i+1, start)
+
+            t = s[start:i+1]
+            if t == t[::-1]:
+                path.append(t)
+                dfs(i+1, i+1)
+                path.pop()
+
+        dfs(0, 0)
+        return ans
 ```
 
 ### 回溯-组合型与剪枝
