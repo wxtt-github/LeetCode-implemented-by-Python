@@ -2779,19 +2779,172 @@ class Solution:
 1.[77. 组合](https://leetcode.cn/problems/combinations/)
 
 ```python
+"""
+思路：
+法一："从答案出发"的思想
+首先创建ans与path用于存储。对于"从答案出发"的思想，采用从大数开始选择会比较好，
+先设置一个dfs(i)的递归函数，然后设置一个for j in range(i, 0, -1)的循环，
+由于题目为从[1, n]进行选择，因此终止条件为0，是选不到的，然后将其添加进path中，
+dfs(j-1)，最后恢复现场即可。终止条件就是当len(path)==k时，将path添加进
+ans中即可。此外，还可以进行剪枝操作，记d=k-len(path)，代表还需要选d个数，
+但若i<d时，则无法再选了，比如还需选1个数，此时i=1时就必须选了，若更小则无法满足。
 
+法二："选与不选"的思想
+首先创建ans与path用于存储。对于"选与不选"的思想，在组合问题中，从大数开始倒着
+递归会比较好，对于"选与不选"的方法，要先处理不选的情况，然后再处理选的情况。
+设置一个dfs(i)的递归函数，对于不选，则dfs(i-1)即可，但是要加一个if i > d的条件，
+如果不加这个条件，则在最开始要加一个if i < 0则return的条件，对于第一个条件，这
+代表是否还能进行不选的资格，比如还需选2个数，则刚需i至少为3，否则没有不选的资格。
+对于选，则将i添加进path，然后递归dfs(i-1)，然后恢复现场即可。
+
+时间复杂度：O(k*C(n, k))。对于组合问题，时间复杂度的公式为叶子数乘以路径长度
+空间复杂度：O(k)
+"""
+from typing import List
+
+class Solution:
+    def combine(self, n: int, k: int) -> List[List[int]]:
+        # 法一
+        # ans = []
+        # path = []
+
+        # def dfs(i):
+        #     d = k - len(path)
+        #     if i < d:
+        #         return
+        #     if len(path) == k:
+        #         ans.append(path.copy())
+        #         return
+        #     for j in range(i, 0, -1):
+        #         path.append(j)
+        #         dfs(j-1)
+        #         path.pop()
+
+        # dfs(n)
+        # return ans
+
+        # 法二
+        ans = []
+        path = []
+
+        def dfs(i):
+            d = k - len(path)
+            if d == 0:
+                ans.append(path.copy())
+                return
+            if i > d:
+                dfs(i-1)
+
+            path.append(i)
+            dfs(i-1)
+            path.pop()
+
+        dfs(n)
+        return ans
 ```
 
 2.[216. 组合总和 III](https://leetcode.cn/problems/combination-sum-iii/)
 
 ```python
+"""
+思路：
+继上一题的两种思路，只需添加path数组的和是否等于n的判断条件即可。可以增加一个target
+参数到dfs函数中，target代表距离n还差多少的数，当target小于0时，说明path的和已超过
+target，没有继续的必要，用于剪枝，不加这个参数进行剪枝算法也可以成立。
 
+时间复杂度：O(k*C(9, k))
+空间复杂度：O(k)
+"""
+from typing import List
+
+class Solution:
+    def combinationSum3(self, k: int, n: int) -> List[List[int]]:
+        # 法一
+        # ans = []
+        # path = []
+
+        # def dfs(i, target):
+        #     if target < 0:
+        #         return
+        #     d = k - len(path)
+        #     if i < d:
+        #         return
+        #     if len(path) == k:
+        #         if sum(path) == n:
+        #             ans.append(path.copy())
+        #             return
+
+        #     for j in range(i, 0, -1):
+        #         path.append(j)
+        #         dfs(j-1, target-j)
+        #         path.pop()
+
+        # dfs(9, n)
+        # return ans
+
+        # 法二
+        ans = []
+        path = []
+
+        def dfs(i, target):
+            if target < 0:
+                return
+            if len(path) == k:
+                if sum(path) == n:
+                    ans.append(path.copy())
+                return
+
+            d = k - len(path)
+            if i > d:
+                dfs(i-1, target)
+
+            path.append(i)
+            dfs(i-1, target-i)
+            path.pop()
+
+        dfs(9, n)
+        return ans
 ```
 
 3.[22. 括号生成](https://leetcode.cn/problems/generate-parentheses/)
 
 ```python
+"""
+思路：
+这题用"选与不选"的思想会好处理一点。选就代表选左括号，不选就代表选右括号，
+问题的关键是，为了确保括号组合有效，我们需要左括号的个数始终大于等于右括号
+的个数，比如当我们已经有了一个'()'，需要在下一个位置选择时，这时我们必须
+选择左括号，否则该括号字符串就无效了。因此我们设计一个dfs递归函数，传入
+i和open，open就代表左括号的个数，当i==2*n时，代表构造完成，添加进ans即可，
+当选左括号时，记得加上open<n的条件，因为左括号个数再多，也只能为n，然后
+递归遍历dfs，然后是选右括号的情况，仅当右括号的个数小于左括号个数时，
+才能选右括号，然后递归遍历即可。
 
+时间复杂度：O(n*C(2n,n))。相当于2n个位置选n个位置填入左括号，其中利用"技巧"控制括号字符串有效
+空间复杂度：O(n)
+"""
+from typing import List
+
+class Solution:
+    def generateParenthesis(self, n: int) -> List[str]:
+        m = 2 * n
+        ans = []
+        path = [''] * m
+
+        def dfs(i, open):
+            if i == m:
+                ans.append(''.join(path))
+                return
+            if open < n:
+                path[i] = '('
+                dfs(i+1, open+1)
+
+            if i - open < open:
+                path[i] = ')'
+                dfs(i+1, open)
+
+        dfs(0, 0)
+        return ans
 ```
 
 4.[39. 组合总和](https://leetcode.cn/problems/combination-sum/)
