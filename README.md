@@ -2950,7 +2950,63 @@ class Solution:
 4.[39. 组合总和](https://leetcode.cn/problems/combination-sum/)
 
 ```python
+"""
+思路：
+法一："选与不选"的思想
+首先设置一个ans和path用于存储。然后设置一个dfs递归函数，传入i和left，left代表剩余数，
+当left为0时，将path添加进ans中，当i为n或left<0时，返回，对于"选与不选"的思想，先处理
+不选的情况，再处理选的情况，记得恢复现场即可。
+法二："从答案出发"的思想
+首先设置一个ans和path用于存储。然后设置一个dfs递归函数，传入i和left，left代表剩余数，
+当left为0时，将path添加进ans中，当i为n或left<0时，返回，对于"从答案出发"的思想，要
+设置一个for j的遍历，从i到n，进行添加，递归，恢复现场的操作
 
+时间复杂度：O(n*logn+((e^π*((2/3)*target))^(1/2))/target)。记target为前target项
+空间复杂度：O(target)
+"""
+from typing import List
+
+class Solution:
+    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+        # 法一
+        # ans = []
+        # path = []
+
+        # def dfs(i, left):
+        #     if left == 0:
+        #         ans.append(path.copy())
+        #         return
+        #     if i == len(candidates) or left < 0:
+        #         return
+
+        #     dfs(i+1, left)
+
+        #     path.append(candidates[i])
+        #     dfs(i, left - candidates[i])
+        #     path.pop()
+
+        # dfs(0, target)
+        # return ans
+
+        # 法二
+        ans = []
+        path = []
+
+        def dfs(i, left):
+            if left == 0:
+                ans.append(path.copy())
+                return
+            
+            if i == len(candidates) or left < 0:
+                return
+            
+            for j in range(i, len(candidates)):
+                path.append(candidates[j])
+                dfs(j, left-candidates[j])
+                path.pop()
+
+        dfs(0, target)
+        return ans
 ```
 
 ### 回溯-排列型
@@ -2958,25 +3014,184 @@ class Solution:
 1.[46. 全排列](https://leetcode.cn/problems/permutations/)
 
 ```python
+"""
+思路：
+首先设置ans用于存储最终答案，设置path用于存储临时答案，对于path，我们只需要
+关注其每个位置，是否要选nums里的其中一个数字，因此我们还需要一个on_path的布尔
+数组来记录nums中的某个数是否已被选过。设置一个dfs函数，边界条件是当i==length时，
+将path的copy添加进ans中，为了避免选择的不重复性，因此我们是对on_path数组进行遍历，
+若取到的元素不为False时，即该数还未被选过时，我们可以把它赋值给path数组内，然后标记
+该数已被选过，递归遍历，恢复现场即可。
 
+时间复杂度:O(n*n!)。全排列节点个数为n!个，每个节点复制花费O(n)的时间
+空间复杂度:O(n)
+"""
+from typing import List
+
+class Solution:
+    def permute(self, nums: List[int]) -> List[List[int]]:
+        ans = []
+        length = len(nums)
+        path = [0] * length
+        on_path = [False] * length
+
+        def dfs(i):
+            if i == length:
+                ans.append(path.copy())
+            
+            for j, x in enumerate(on_path):
+                if not on_path[j]:
+                    path[i] = nums[j]
+                    on_path[j] = True
+                    dfs(i+1)
+                    on_path[j] = False
+            
+        dfs(0)
+        return ans
 ```
 
 2.[51. N 皇后](https://leetcode.cn/problems/n-queens/)
 
 ```python
+"""
+思路：
+对于N皇后问题，需要进行问题转换，由于N皇后不允许皇后出现在同行同列同斜线，
+首先看待同行同列如何不满足，实际上其等价于一个全排列的问题，不考虑行号，
+只考虑列号，若不满足同行同列，则实际上是关于列号的全排列，所以问题就转换成了，
+我们先拿到0-(n-1)的全排列，然后再判断这个全排列的列表是否能不满足同斜线的问题。
+值得注意的是，对于斜线，有正斜线和反斜线，正斜线的规律是行号+列号是相同的，
+反斜线的规律是行号-列号是相同的，借助这两个规则我们就能判断是否不满足斜线的问题。
+在代码中，由于我们是一个皇后一个皇后的放置，因此我们的代码的考虑模式是，我们
+从0行开始放，那么肯定不会出现同行，然后若我们放的列已经被放过皇后，则我们不放，
+进阶的，若我们放皇后的地方符合我们的两个规则，则我们不放，由此我们可以写出递归函数。
+首先我们设置一个ans用于存储，然后设置一个quene用于存放每行实际放置皇后的列号，
+设置一个col = [False] * n用于存放某列是否被选过，设置check1 = [False] * 2 * n
+用于记录行号加列号的值是否出现过，因为我们最多需要记录到(n-1) + (n-1)的情况，
+因此我们需要至少设置一个长为2n-1的数组，check2也是同理，python有负索引，因此
+同样至少设置一个长为2n-1的数组即可。然后是写一个dfs遍历，i代表遍历的第i行，
+边界条件是，当i==n时，我们可以添加临时答案了，设置一个temp列表，遍历queue
+将每行代表的字符串添加进temp中，然后再将temp添加进ans即可。然后是遍历col列表，
+i代表当前的处理行号，当第j列没被选时，当i+j在check1数组中不冲突时，当i-j在
+check2数组中不冲突时，执行queue[i] = j的操作，然后将col，check1，check2的对应
+标记设为True，然后递归遍历dfs(i+1)，然后恢复现场，这里quene[i]恢不恢复无所谓，
+后面会被覆写。
 
+时间复杂度：O(n^2*n!)。全排列节点数为n!，每次复制答案花费O(n^2)时间
+空间复杂度：O(n)
+"""
+from typing import List
+
+class Solution:
+    def solveNQueens(self, n: int) -> List[List[str]]:
+        ans = []
+        quene = [0] * n
+        col = [False] * n
+        check1 = [False] * 2 * n
+        check2 = [False] * 2 * n
+
+        def dfs(i):
+            if i == n:
+                temp = []
+                for j, x in enumerate(quene):
+                    temp.append("." * x + "Q" + "." * (n - x - 1))
+                ans.append(temp)
+                return
+            for j, x in enumerate(col):
+                if not col[j] and not check1[i+j] and not check2[i-j]:
+                    quene[i] = j
+                    check1[i+j] = True
+                    check2[i-j] = True
+                    col[j] = True
+                    dfs(i+1)
+                    check1[i+j] = False
+                    check2[i-j] = False
+                    col[j] = False
+        
+        dfs(0)
+        return ans
 ```
 
 3.[52. N 皇后 II](https://leetcode.cn/problems/n-queens-ii/)
 
 ```python
+"""
+思路：
+同51上一题N皇后一致，将边界条件改为ans+1即可
 
+时间复杂度:O(n*n!)。全排列节点数为n!，添加一个答案要遍历col，复杂度为O(n)，
+而对于前一题还需要构造答案，又多一个O(n)
+空间复杂度:O(n)
+"""
+class Solution:
+    def totalNQueens(self, n: int) -> int:
+        ans = 0
+        # queue = [0] * n
+        col = [False] * n
+        check1 = [False] * 2 * n
+        check2 = [False] * 2 * n
+
+        def dfs(i):
+            nonlocal ans
+            if i == n:
+                ans += 1
+                return
+            
+            for j, x in enumerate(col):
+                if not col[j] and not check1[i+j] and not check2[i-j]:
+                    # queue[i] = j
+                    col[j] = True
+                    check1[i+j] = True
+                    check2[i-j] = True
+                    dfs(i+1)
+                    col[j] = False
+                    check1[i+j] = False
+                    check2[i-j] = False
+        
+        dfs(0)
+        return ans
 ```
 
 4.[2850. 将石头分散到网格图的最少移动次数](https://leetcode.cn/problems/minimum-moves-to-spread-stones-over-grid/)
 
 ```python
+"""
+思路：
+根据题意，实际上是将多石头的地方移动到没有石头的地方，进而转化为，
+我们记录多石头的位置坐标和无石头的位置坐标，对于多石头的地方，每
+多一个石头，我们都重复记录一次，最终这两个列表实际上长度是相等的，
+由此问题转化为两个列表元素的一一对应的选择问题，即将A列表进行全排列
+的问题。对于将A列表全排列，可以用itertools中的permutations进行操作，
+得到的每个元素都是一个新的全排列的序列列表，然后将其一一对应的坐标进行
+距离计算，最后进行比较即可。
 
+时间复杂度:O(mn*(mn)!)。m为行数，n为列数，全排列数为(mn)!，对于
+计算的复杂度为O(mn)
+空间复杂度:O(mn)
+"""
+from typing import List
+import math
+from itertools import permutations
+
+class Solution:
+    def minimumMoves(self, grid: List[List[int]]) -> int:
+        ans = math.inf
+        from_point = []
+        to_point = []
+        for i, row in enumerate(grid):
+            for j, x in enumerate(row):
+                if x > 1:
+                    from_point.extend([(i, j)] * (x - 1))
+                elif x == 0:
+                    to_point.append((i, j))
+
+        for i in permutations(from_point):
+            total = 0
+            for (x1, y1), (x2, y2) in zip(i, to_point):
+                total += abs(x1 - x2)
+                total += abs(y1 - y2)
+            ans = min(ans, total)
+
+        return ans
 ```
 
 ### 动态规划-从记忆化搜索到递推
