@@ -3199,49 +3199,370 @@ class Solution:
 1.[198. 打家劫舍](https://leetcode.cn/problems/house-robber/)
 
 ```python
+"""
+思路：
+动态规划的算法写法，需要两个条件，状态定义和状态转移方程。
+先用递归的写法写出来，然后再将其翻译成状态转移方程即可。
 
+以从右到左的写法为例，我们从最后一个屋子出发，有偷和不偷两个选项，
+那么我们的递归就是max(dfs(i-1), dfs(i-2) + nums[i])，边界条件是
+当i<0时返回0即可，为了不超时，我们可以从functools引入cache，
+然后在函数上面加上装饰器@cache，这样已计算过的dfs(i)无需重新计算，
+加快递归计算。然后是进行翻译，翻译成递推的形式，对于dfs(i)看成是f[i]，
+如此我们可以得到f[i]=max(f[i-1], f[i-2]+nums[i])的公式，为了不让数组
+越界，我们方程左右两边各加2，得到f[i+2]=max(f[i+1], f[i]+nums[i]),
+然后我们创建一个长为len(nums)+2的全为0的f数组，遍历nums进行递推即可，
+这里注意nums[i]并没有变成nums[i+2]，因为dfs(-1)和dfs(-2)我们都做了
+特殊处理，翻译成递推后为了避免下标越界所以都加了2，但是nums[i]是从0
+开始计算的，翻译成递推后依旧要从0开始计算，因此不需要动，最后返回f数组
+的最后一个元素即可。同理也可以写出从左到右的递归方法和递推方法，可以发现
+从右到左的方法翻译时，会更好翻译一些，最终是从左到右递推的。
+
+时间复杂度:O(n)
+空间复杂度:O(n)
+
+进阶地，当我们写出从右到左方法的递推翻译后，我们可以看出第三个元素取决
+于前两个元素的值，类似斐波那契数列，因此实际上我们可以用常数个元素f0，f1，f2
+将他们初始化为0，然后进行不断递推即可，最后返回f2，由于在python中将赋值操作
+写在同一行，赋值操作是同时发生的，所以最少也可以只用两个变量，但感觉实际中
+还是要更注意先后顺序，用三个变量会更方便一点。
+"""
+from typing import List
+from functools import cache
+
+class Solution:
+    def rob(self, nums: List[int]) -> int:
+        # 法一，从右到左
+        # @cache
+        # def dfs(i):
+        #     if i < 0:
+        #         return 0
+        #     return max(dfs(i-1), dfs(i-2) + nums[i])
+        # return dfs(len(nums)-1)
+
+        # 法二，从左到右
+        # @cache
+        # def dfs(i):
+        #     if i > len(nums)-1:
+        #         return 0
+        #     return max(dfs(i+1), dfs(i+2) + nums[i])
+        # return dfs(0)
+
+        # 法三，翻译成递推，从右到左
+        # f = [0] * (len(nums) + 2)
+        # for i, x in enumerate(nums):
+        #     f[i+2] = max(f[i+1], f[i] + x)
+        # return f[-1]
+
+        # 法四，翻译成递推，从左到右
+        # f = [0] * (len(nums) + 2)
+        # for i in range(len(nums) - 1, -1, -1):
+        #     f[i] = max(f[i+1], f[i+2] + nums[i])
+        # return f[0]
+
+        # 法五，翻译成递推，从右到左，同时优化成常量空间复杂度
+        f0 = f1 = 0
+        f2 = 0
+        for i, x in enumerate(nums):
+            f2 = max(f1, f0 + x)
+            f0 = f1
+            f1 = f2
+
+            # f0, f1 = f1, max(f1, f0 + x)
+        return f2
+        # return f1
 ```
 
 2.[70. 爬楼梯](https://leetcode.cn/problems/climbing-stairs/)
 
 ```python
+"""
+思路:
+法一：
+动态规划，为了之后方便改为递推，我们从右到左的顺序进行递归，先写一个dfs(i)
+递归函数，由于我们可以下两层或者下一层，因此return dfs(i-2) + dfs(i-1)，
+同时我们注意到dfs(2) = dfs(0) + dfs(1)，因此可以算出dfs(0) = 1，因此边界
+条件为当i <= 1时，返回1，由于边界条件的存在，因此不会有dfs(-1)继续进入递归
+的情况了，然后加上装饰器@cache，否则会超时，因为先下一步再下两步和先下两步
+再下一步结果是相同的，因此会重复计算。
 
+时间复杂度:O(n)，当加装饰器时。O(2^n)，当不加装饰器时，因为树高为n，结点数为O(2^n)
+空间复杂度:O(n)
+
+法二：
+将其进行翻译，由于dfs(0)的存在，因此实际上有n+1层，我们创建一个n+1长度的数组，
+初始化f[0] = f[1] = 1，进行递推即可，进阶地，可以只用常数个变量进行递推，优化
+空间复杂度为O(1)
+"""
+from functools import cache
+
+class Solution:
+    def climbStairs(self, n: int) -> int:
+        # 法一
+        # @cache
+        # def dfs(i):
+        #     if i <= 1:
+        #         return 1
+        #     return dfs(i-2) + dfs(i-1)
+        # return dfs(n)
+
+        # 法二
+        # f = [0] * (n + 1)
+        # f[0] = f[1] = 1
+        # for i in range(n-1):
+        #     f[i+2] = f[i+1] + f[i]
+        # return f[-1]
+
+        # 法三
+        f0 = f1 = 1
+        f2 = 1
+        for i in range(n-1):
+            f2 = f1 + f0
+            f0 = f1
+            f1 = f2
+        return f2
 ```
 
 3.[746. 使用最小花费爬楼梯](https://leetcode.cn/problems/min-cost-climbing-stairs/)
 
 ```python
+"""
+思路：
+动态规划，法一和法二列了两种顺序，可以看出从右到左会更好一点，dfs(i)实际上
+是由dfs(i-1)和dfs(i-2)决定的，实际上有0-len(cost)层楼即总共len(cost)+1层，
+这里的i就代表所处楼层即可。即第2层楼由第0层和第1层楼决定，第n层楼由第n-1和第n-2层楼
+决定，因为我们可以选择从第0或者1层楼出发，则当i<=1时返回0即可，因为来到这里时并没有
+花费。然后就是常规翻译和优化空间复杂度，注意这题和上题进行翻译的循环边界条件不同，
+有时我们按题目情况进行下标调整即可。
 
+时间复杂度:O(n)，如果不用@cache则为O(2^n)
+空间复杂度:O(1)，如果不用常量空间则为O(n)
+"""
+from typing import List
+import math
+from functools import cache
+
+class Solution:
+    def minCostClimbingStairs(self, cost: List[int]) -> int:
+        # 法一，从左到右，259/285 cases passed，Memory Limit Exceeded
+        # length = len(cost)
+        # @cache
+        # def dfs(i, temp_cost):
+        #     if i == length:
+        #         return temp_cost
+        #     if i == length - 1:
+        #         return temp_cost + cost[length-1]
+        #     return min(dfs(i+1, temp_cost+cost[i]), dfs(i+2, temp_cost+cost[i]))
+        # return min(dfs(0, 0), dfs(1, 0))
+
+        # 法二，从右到左，285/285 cases passed
+        # @cache
+        # def dfs(i):
+        #     if i <= 1:
+        #         return 0
+        #     return min(dfs(i-1) + cost[i-1], dfs(i-2) + cost[i-2])
+        # return dfs(len(cost))
+
+        # 法三
+        # f = [0] * (len(cost) + 1)
+        # f[0] = f[1] = 0
+        # for i in range(2, len(cost) + 1):
+        #     f[i] = min(f[i-1] + cost[i-1], f[i-2] + cost[i-2])
+        # return f[-1]
+
+        # 法四
+        f0 = f1 = 0
+        f2 = 0
+        for i in range(2, len(cost) + 1):
+            f2 = min(f1 + cost[i-1], f0 + cost[i-2])
+            f0 = f1
+            f1 = f2
+        return f2
 ```
 
 4.[377. 组合总和 Ⅳ](https://leetcode.cn/problems/combination-sum-iv/)
 
 ```python
+"""
+思路:
+该题和746题的核心区别在于，nums的长度是不是可变的，因此处理的关键就是如何处理
+可变的选择，我们从右到左的顺序，边界条件是当i==0时返回1，代表完成了一次有效排列，
+然后要遍历nums中的每一种选择，仅当选择的数小于我们的i也就是楼层数时，我们才进行
+递归操作，可以设置一个temp用于计数，使其累加dfs(i-x)，当最后能归到dfs(0)时，
+才会得到一个计数1，至此完成整个算法。
 
+时间复杂度:O(n*target)，n为nums的长度
+空间复杂度:O(target)，dfs的可能状态数
+
+进阶地，翻译成递推，需要创建一个长为target+1的数组，因为以nums=[1, 2]，target=2
+为例，总共有两种方法，f[2] = f[1] + f[0]，f[1] = f[0]，因此f[0] = f[1] = 1在此时，
+所以f[0] = 1，但不代表一般情况f[1]能等于1，因为可能根本到不了第一层，然后我们递推翻译即可，
+注，这题的时间复杂度和空间复杂度无法进一步优化，推荐法一的写法。
+"""
+from typing import List
+from functools import cache
+
+class Solution:
+    def combinationSum4(self, nums: List[int], target: int) -> int:
+        # 法一
+        @cache
+        def dfs(i):
+            if i == 0:
+                return 1
+            temp = 0
+            for x in nums:
+                if x <= i:
+                    temp += dfs(i-x)
+            return temp
+        return dfs(target)
+
+        # 法二
+        # f = [1] + [0] * target
+        # for i in range(1, target+1):
+        #     temp = 0
+        #     for x in nums:
+        #         if x <= i:
+        #             temp += f[i-x]
+        #     f[i] = temp
+        # return f[-1]
 ```
 
 5.[2466. 统计构造好字符串的方案数](https://leetcode.cn/problems/count-ways-to-build-good-strings/)
 
 ```python
+"""
+思路：
+这题本质是70.爬楼梯，只不过加了上下限，我们用for循环针对每种长度进行dfs的求解，最后
+再相加即可，值得注意的是，与爬楼梯不同，爬楼梯一定能爬下来，而构造字符串并不一定能构造
+出好字符串，因为爬楼梯可以爬一层，当我们爬到1层时，也算爬完了，不会爬到负数，
+因此这里的边界条件要对小于0和等于0的情况做特殊处理，然后再进行取余和求和操作，注意这里
+对10^9 + 7的两种写法，用第二种写法会计算出浮点数，最后需要进行强转，而第一种不会。
 
+时间复杂度:O(high)
+空间复杂度:O(high)
+
+进阶地，本题可以将时空复杂度优化到O(high / g)，其中g为zero和one的最大公约数，因为比如
+zero和one都是偶数，则对于奇数长度的字符串实际上可以不用计算，但我觉得不是很关键，包含
+太多取整操作，不是算法的核心，大概的操作就是将low，high，zero，one优化成new_low，
+new_high，new_zero，new_one，将原先的四个数都除以g，其中low要向上取整，high要向下取整，
+zero和one因为除以的是公约数，无需取整，然后用这新的四个数按照原算法进行计算即可。
+"""
+from functools import cache
+
+class Solution:
+    def countGoodStrings(self, low: int, high: int, zero: int, one: int) -> int:
+        MOD1 = 1_000_000_007
+        MOD2 = 1e9 + 7
+        @cache
+        def dfs(i):
+            if i < 0:
+                return 0
+            if i == 0:
+                return 1
+            return (dfs(i-zero) + dfs(i-one)) % MOD1
+        ans = 0
+        for i in range(low, high+1):
+            ans += dfs(i)
+            ans %= MOD1
+        # ans = int(ans)
+        return ans
 ```
 
 6.[2266. 统计打字方案数](https://leetcode.cn/problems/count-number-of-texts/)
 
 ```python
+"""
+思路：
+本质是70.爬楼梯的变式，由于对于一个连续同字符字串，我们可以选择消耗若干个变为1个字母，
+根据之前爬楼梯的递推式，以及本题楼层的最大高度，我们可以直接写出递推数组，注意爬1层楼
+有一种方法，两层楼有两种方法，三层楼有4种方法，所以爬0层楼有1种方法，爬第i层楼取决于
+前三层楼的爬法累加，同理可以写出7和9的写法，我们可以预处理f和g两个递推数组，注意由于
+第0层的存在，所以数组长度是10^5+1，同时要注意求模，至此，我们就有了当有若干层楼时，
+直接索引下标就可以得到方法数。接下来要处理字符串分割的问题，我们要将字符串分割成若干个
+连续子串，可以用itertools中的groupby遍历，第一个元素是字符，第二个元素是迭代器，用
+字符判断需索引的数组，将迭代器用强转为list，求其长度然后进行索引得到方法数，最后根据
+乘法原理将答案进行累乘即可。
 
+时间复杂度:O(n)。不考虑预处理数组的开销
+空间复杂度:O(1)。不考虑预处理数组的开销
+"""
+from itertools import groupby
+
+class Solution:
+    def countTexts(self, pressedKeys: str) -> int:
+        MOD = 1_000_000_007
+        f = [1, 1, 2] + [0] * (10 ** 5 - 2)
+        g = [1, 1, 2, 4] + [0] * (10 ** 5 - 3)
+        for i in range(3, 10 ** 5 + 1):
+            f[i] = (f[i-1] + f[i-2] + f[i-3]) % MOD
+        for i in range(4, 10 ** 5 + 1):
+            g[i] = (g[i-1] + g[i-2] + g[i-3] + g[i-4]) % MOD
+
+        ans = 1
+        for ch, s in groupby(pressedKeys):
+            if ch in "79":
+                ans *= g[len(list(s))] 
+                ans %= MOD
+            else:
+                ans *= f[len(list(s))]
+                ans %= MOD
+        return ans
 ```
 
 7.[213. 打家劫舍 II](https://leetcode.cn/problems/house-robber-ii/)
 
 ```python
+"""
+思路:
+198.打家劫舍的变式，核心在于数组在逻辑上是一个头尾相接的数组，因此，比较好的做法是，
+分类讨论是否偷nums[0]，如果偷，则末尾元素不能偷，问题转变为下标2-(n-2)的普通做法，
+若不偷，则末尾元素可以偷，问题转变为1-(n-1)的普通做法。在写算法时，可以在Solution
+中重写一个rob1函数，以供rob进行调用。
 
+时间复杂度:O(n)
+空间复杂度:O(n)，还可以用常量空间进一步优化成O(1)
+"""
+from typing import List
+from functools import cache
+
+class Solution:
+    def rob1(self, nums):
+        @cache
+        def dfs(i):
+            if i < 0:
+                return 0
+            return max(dfs(i-2) + nums[i], dfs(i-1))
+        return dfs(len(nums) - 1)
+
+    def rob(self, nums: List[int]) -> int:
+        return max(nums[0] + self.rob1(nums[2:-1]), self.rob1(nums[1:]))
 ```
 
 8.[LCR 166. 珠宝的最高价值](https://leetcode.cn/problems/li-wu-de-zui-da-jie-zhi-lcof/)
 
 ```python
+"""
+思路：
+定义一个dfs(i, j)的递归函数，表示第i行j列的最大值，对于dfs(i, j)只能从其左边或者
+上面到达，因此可以得到dfs(i, j) = max(dfs(i, j-1) + frame[i][j], dfs(i-1, j) + frame[i][j])
+的关系式，即将大矩阵缩小为少一列或少一行的小矩阵，对于边界条件，当下标小于0时，返回0即可。
 
+时间复杂度:O(mn)。若不用@cache则为O(2^(m+n))
+空间复杂度:O(mn)。若不用@cache则为O(m+n)
+
+进阶地，翻译成递推后，还可以用常量空间将空间复杂度优化成O(1)。
+"""
+from typing import List
+from functools import cache
+
+class Solution:
+    def jewelleryValue(self, frame: List[List[int]]) -> int:
+        @cache
+        def dfs(i, j):
+            if i < 0 or j < 0:
+                return 0
+            return max(dfs(i, j-1) + frame[i][j], dfs(i-1, j) + frame[i][j])
+        return dfs(len(frame)-1, len(frame[0])-1)
 ```
 
 ### 0-1-背包-完全背包-至多-恰好-至少
