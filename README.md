@@ -3570,37 +3570,548 @@ class Solution:
 1.[494. 目标和](https://leetcode.cn/problems/target-sum/)
 
 ```python
+"""
+思路：
+0-1背包问题：有n个物品，第i个物品的体积为w[i]，价值为v[i]，每个物品至多选一个，
+求体积不超过capacity即c时的最大价值和。
 
+法一：
+0-1背包的通用写法已给出，边界条件是i<0以及容量不够的情况，返回一个max。
+对于该题，看起来和0-1背包没什么关系，其实是变式，考虑我们选的赋予加号的数的和为p，
+nums的和为s，则赋予负号的数的和为s-p，则target即t=p-(s-p)=2p-s，则p=(s+t)/2。
+s和t都是可以直接计算得到的，则问题就转变为，我们选一些数，他的和正好等于(s+t)/2，
+这些方案的方案数，就是结果。由于0 <=nums[i] <= 1000，所以(s+t)不能是负数，由于
+要除以2，因此也不能是奇数，这两种情况直接返回0即可。然后我们将0-1背包的通用写法进行
+改造，写一个dfs(i, c)函数，边界条件是当i小于0时，如果c==0了，则返回1，代表方案成功，
+否则返回0，代表方案失败，如果容量不够了，则跳过该数，最后将max改为加法即可。
+
+时间复杂度:O(n*p)，其中n为nums的长度，p为(s+t)/2
+空间复杂度:O(n*p)
+
+法二：
+将记忆化搜索(递归搜索，保存答案)改为递推，由于是dfs(i, c)，因此要创建一个二维数组，
+对于递推式有f[i][c] = f[i-1][c] + f[i-1][c-nums[i]]，为了防止越界，两边加1得到，
+f[i+1][c] = f[i][c] + f[i][c-nums[i]]。因为两边加1了，因此有len(nums)+1行，
+两边加1不影响到p，因此有p+1列，根据边界条件，由于i+1了，原先当i<0，c==0时，return 1，
+则f[0][0] = 1。然后就是将递归翻译成循环，外层遍历nums，内层控制c从0到p，进行递推即可。
+
+时间复杂度:O(n*p)，其中n为nums的长度，p为(s+t)/2
+空间复杂度:O(n*p)
+
+法三：
+根据f[i+1][c] = f[i][c] + f[i][c-nums[i]]和f[i+1][c] = f[i][c]两个递推式，我们可以
+看出，f[1]取决于f[0]，f[2]取决于f[1]，因此实际上只需要两个数组即可，我们将数组初始化时
+只初始化两行，然后在后面所有赋值操作时，将行号统一对2取余，实现只用常量列数组的空间复杂度。
+
+时间复杂度:O(n*p)，其中n为nums的长度，p为(s+t)/2
+空间复杂度:O(p)
+"""
+from typing import List
+from functools import cache
+
+class Solution:
+    # 0-1背包通用写法
+    def zero_one_knapsack(w, v, capcity):
+        @cache
+        def dfs(i, c):
+            if i < 0:
+                return 0
+            if c < w[i]:
+                return dfs(i-1, c)
+            return max(dfs(i-1, c-1), dfs(i-1, c-w[i]) + v[i])
+        return dfs(len(w) - 1, capcity)  
+    
+    def findTargetSumWays(self, nums: List[int], target: int) -> int:
+        # 法一
+        # p = sum(nums) + target
+        # if p < 0 or p % 2:
+        #     return 0
+        # p //= 2
+
+        # @cache
+        # def dfs(i, c):
+        #     if i < 0:
+        #         if c == 0:
+        #             return 1
+        #         else:
+        #             return 0
+        #     if c < nums[i]:
+        #         dfs(i-1, c)
+        #     return dfs(i-1, c) + dfs(i-1, c-nums[i])
+
+        # return dfs(len(nums)-1, p)
+
+        # 法二
+        # p = sum(nums) + target
+        # if p < 0 or p % 2:
+        #     return 0
+        # p //= 2
+
+        # f = []
+        # for i in range(len(nums)+1):
+        #     f.append([0] * (p+1))
+        # f[0][0] = 1
+
+        # for i, x in enumerate(nums):
+        #     for c in range(p+1):
+        #         if c < x:
+        #             f[i+1][c] = f[i][c]
+        #         else:
+        #             f[i+1][c] = f[i][c] + f[i][c-x]
+
+        # return f[len(nums)][p]
+
+        # 法三
+        p = sum(nums) + target
+        if p < 0 or p % 2:
+            return 0
+        p //= 2
+
+        f = []
+        for i in range(2):
+            f.append([0] * (p+1))
+        f[0][0] = 1
+
+        for i, x in enumerate(nums):
+            for c in range(p+1):
+                if c < x:
+                    f[(i+1)%2][c] = f[i%2][c]
+                else:
+                    f[(i+1)%2][c] = f[i%2][c] + f[i%2][c-x]
+
+        return f[len(nums)%2][p]
 ```
 
 2.[322. 零钱兑换](https://leetcode.cn/problems/coin-change/)
 
 ```python
+"""
+思路：
+完全背包：有n种物品，第i种物品的体积为w[i]，价值为v[i]，每种物品可无限次重复选，
+求体积不超过capacity即c时的最大价值和。通用写法已给出，边界条件为当i<0时返回0，
+当容量不够时，跳过该选择，然后返回一个max，注意和0-1背包不同的是，选了一次后还可以
+继续选，因此是max(dfs(i-1, c), dfs(i, c-w[i]) + v[i])
 
+法一：
+该题要求返回可以凑成总金额所需的最少的硬币个数，实际上是完全背包的变形，因为是最少，
+所以最后要返回一个min，同时我们可以将v[i]改为1，代表我们已经选了一个硬币，对于边界
+条件，当i<0时，我们对c进行判断，若c已经为0，则代表该方案成立，我们返回一个0，这样
+最终的返回数就是硬币数，如果c不为0，则代表该方案不成立，我们返回math.inf，最后我们
+通过判断是不是inf来决定是否返回-1即可。
+
+法二:
+将记忆化搜索改为递推，我们根据法一可以得到两个递推式，为了防止下标越界，两边加一，
+得到f[i+1][c] = f[i][c]和f[i+1][c] = min(f[i][c], f[i+1][c-coins[i]] + 1)。
+然后是f的初始化，因为是dfs(i, c)，所以是一个二维数组，考虑行数i，在记忆化搜索中，
+ans = dfs(len(coins)-1, amount)，我们是从最后一个下标开始的，因此原先行数为len(coins)，
+因为两边加1，所以真实行数为len(coins)+1，原先列数为amount+1，保持不变。初始化时
+全赋值为inf，观察边界条件，i<0，c==0时return 0，因为两边加1，所以i==0，c==0时，
+return 0，即f[0][0]=0。然后是将递归改为循环，对于i这层循环，我们可以遍历coins，
+对于c这层循环，我们可以用range(amount+1)来遍历，然后依次翻译即可，最后返回末尾元素
+
+时间复杂度:O(n*amount)。其中n为coins的长度，对于复杂度，直接计算i*c即可。
+空间复杂度:O(n*amount)
+
+法三：
+观察递推式f[i+1][c] = f[i][c]和f[i+1][c] = min(f[i][c], f[i+1][c-coins[i]] + 1)，
+我们可以看出f[i+1]实际上由f[i]和f[i+1]决定，因此在行的角度上实际只需要两个数组，因此
+初始化时我们只初始化两行，然后后面赋值操作时对于行号每次都取余2即可，由此可以把行的空间
+复杂度给优化成O(1)。
+
+时间复杂度:O(n*amount)。其中n为coins的长度，对于复杂度，直接计算i*c即可。
+空间复杂度:O(amount)
+"""
+from typing import List
+from functools import cache
+import math
+
+class Solution:
+    def unbounded_knapsack(w, v, capcity):
+        @cache
+        def dfs(i, c):
+            if i < 0:
+                return 0
+            if c < w[i]:
+                return dfs(i-1, c)
+            return max(dfs(i-1, c), dfs(i, c-w[i]) + v[i])
+
+        return dfs(len(w)-1, capcity)
+
+    def coinChange(self, coins: List[int], amount: int) -> int:
+        # 法一
+        # @cache
+        # def dfs(i, c):
+        #     if i < 0:
+        #         if c == 0:
+        #             return 0
+        #         else:
+        #             return math.inf
+        #     if c < coins[i]:
+        #         return dfs(i-1, c)
+        #     return min(dfs(i-1, c), dfs(i, c-coins[i]) + 1)
+
+        # ans = dfs(len(coins)-1, amount)
+        # if ans == math.inf:
+        #     return -1
+        # else:
+        #     return ans
+
+        # 法二
+        # f = []
+        # for i in range(len(coins) + 1):
+        #     f.append([math.inf] * (amount + 1))
+        # f[0][0] = 0
+
+        # for i in range(len(coins)):
+        #     for j in range(amount + 1):
+        #         if j < coins[i]:
+        #             f[i+1][j] = f[i][j]
+        #         else:
+        #             f[i+1][j] = min(f[i][j], f[i+1][j-coins[i]] + 1)
+
+        # ans = f[len(coins)][amount]
+        # if ans == math.inf:
+        #     return -1
+        # else:
+        #     return ans
+
+        # 法三
+        f = []
+        for i in range(2):
+            f.append([math.inf] * (amount + 1))
+        f[0][0] = 0
+
+        for i in range(len(coins)):
+            for j in range(amount + 1):
+                if j < coins[i]:
+                    f[(i+1)%2][j] = f[i%2][j]
+                else:
+                    f[(i+1)%2][j] = min(f[i%2][j], f[(i+1)%2][j-coins[i]] + 1)
+
+        ans = f[len(coins)%2][amount]
+        if ans == math.inf:
+            return -1
+        else:
+            return ans
 ```
 
 3.[2915. 和为目标值的最长子序列的长度](https://leetcode.cn/problems/length-of-the-longest-subsequence-that-sums-to-target/)
 
 ```python
+"""
+思路：
+法一：
+因为nums中的数不能重复选择，因此是0-1背包问题，因为要返回最大长度，因此dfs要返回
+一个max，然后是思考边界条件，当i<0时，我们要额外判断c是否为0，若为0则返回0，因为
+后面我们将v[i]改写为1，用于代表选了一个数，也就是长度+1，又因为是返回max，所以
+当c != 0时，我们要返回-inf，如果返回inf会使得正确答案被inf覆盖，而-inf不会影响。
+然后进行正常递归即可，值得注意的是，在本题中，记忆化搜索会爆内存，可以加上
+dfs.cache_clear()，但是尽管没有内存问题了，时间反而会超时。
 
+法二：
+将记忆化搜索翻译成递推，进行常规翻译即可，无难度，注意外层对i循环通过nums遍历来进行，
+内层通过range来进行即可。
+
+时间复杂度:O(n*target)。其中n为nums的长度
+空间复杂度:O(n*target)
+
+法三：
+观察递推式发现f[i+1]仅取决于f[i]，因此在行的维度上可以优化成两个数组即可。
+
+时间复杂度:O(n*target)。其中n为nums的长度
+空间复杂度:O(target)
+"""
+from typing import List
+from functools import cache
+import math
+
+class Solution:
+    def zero_one_knapsack(w, v, capcity):
+        @cache
+        def dfs(i, c):
+            if i < 0:
+                return 0
+            if c < w[i]:
+                return dfs(i-1, c)
+            return max(dfs(i-1, c), dfs(i-1, c-w[i]) + v[i])
+        return dfs(len(w)-1, capcity)
+
+    def lengthOfLongestSubsequence(self, nums: List[int], target: int) -> int:
+        # 法一，884/941 cases passed (N/A)，Memory Limit Exceeded
+        # @cache
+        # def dfs(i, c):
+        #     if i < 0:
+        #         if c == 0:
+        #             return 0
+        #         else:
+        #             return -math.inf
+        #     if c < nums[i]:
+        #         return dfs(i-1, c)
+        #     return max(dfs(i-1, c), dfs(i-1, c-nums[i]) + 1)
+
+        # ans = dfs(len(nums)-1, target)
+        # # 若不加上这行会爆内存，加上这行是926/941 cases passed (N/A)，Time Limit Exceeded
+        # # dfs.cache_clear()
+        # if ans > 0:
+        #     return ans
+        # else:
+        #     return -1
+
+        # 法二
+        # f = []
+        # for i in range(len(nums)+1):
+        #     f.append([-math.inf] * (target+1))
+        # f[0][0] = 0
+
+        # for i, x in enumerate(nums):
+        #     for j in range(target+1):
+        #         if j < x:
+        #             f[i+1][j] = f[i][j]
+        #         else:
+        #             f[i+1][j] = max(f[i][j], f[i][j-x] + 1)
+
+        # ans = f[len(nums)][target]
+        # if ans > 0:
+        #     return ans
+        # else:
+        #     return -1
+
+        # 法三
+        f = []
+        for i in range(2):
+            f.append([-math.inf] * (target+1))
+        f[0][0] = 0
+
+        for i, x in enumerate(nums):
+            for j in range(target+1):
+                if j < x:
+                    f[(i+1)%2][j] = f[i%2][j]
+                else:
+                    f[(i+1)%2][j] = max(f[i%2][j], f[i%2][j-x] + 1)
+
+        ans = f[len(nums)%2][target]
+        if ans > 0:
+            return ans
+        else:
+            return -1
 ```
 
 4.[416. 分割等和子集](https://leetcode.cn/problems/partition-equal-subset-sum/)
 
 ```python
+"""
+思路：
+该题不能被"分割"这两个字迷惑，实际上对于nums的和s，分割成两个子集后，这两个子集
+满足相等的条件，则每个子集实际上的和均为s/2，因此问题转变为从nums中选一些数，
+使得他们的和为s/2，转变为0-1背包问题，同时s必须是偶数，否则无法整除2。然后是正常
+进行记忆化搜索，翻译，空间优化操作，注意这里返回true or false，则可以通过返回bool
+类型进行编写。
 
+时间复杂度:O(n*s)。其中n为nums的长度，s为nums的和。
+空间复杂度:O(s)。若不进行空间优化则为O(n*s)。
+"""
+from typing import List
+from functools import cache
+
+class Solution:
+    def canPartition(self, nums: List[int]) -> bool:
+        # 法一
+        # s = sum(nums)
+        # if s % 2:
+        #     return False
+
+        # s //= 2
+
+        # @cache
+        # def dfs(i, c):
+        #     if i < 0:
+        #         if c == 0:
+        #             return True
+        #         else:
+        #             return False
+        #     if c < nums[i]:
+        #         return dfs(i-1, c)
+        #     return dfs(i-1, c) or dfs(i-1, c-nums[i])
+
+        # return dfs(len(nums)-1, s)
+
+        # 法二
+        # s = sum(nums)
+        # if s % 2:
+        #     return False
+        # s //= 2
+
+        # f = []
+        # for i in range(len(nums) + 1):
+        #     f.append([False] * (s + 1))
+        # f[0][0] = True
+
+        # for i, x in enumerate(nums):
+        #     for j in range(s + 1):
+        #         if j < x:
+        #             f[i+1][j] = f[i][j]
+        #         else:
+        #             f[i+1][j] = f[i][j] or f[i][j-x]
+
+        # return f[-1][-1]
+
+        # 法三
+        s = sum(nums)
+        if s % 2:
+            return False
+        s //= 2
+
+        f = []
+        for i in range(2):
+            f.append([False] * (s + 1))
+        f[0][0] = True
+
+        for i, x in enumerate(nums):
+            for j in range(s + 1):
+                if j < x:
+                    f[(i+1)%2][j] = f[i%2][j]
+                else:
+                    f[(i+1)%2][j] = f[i%2][j] or f[i%2][j-x]
+
+        # 虽然取最后一个也能通过，但是在某些情况不行，建议还是用取余形式，如下题518就不行
+        # return f[-1][-1]
+        return f[len(nums)%2][s]
 ```
 
 5.[518. 零钱兑换 II](https://leetcode.cn/problems/coin-change-ii/)
 
 ```python
+"""
+思路：
+因为硬币可以无限选取，所以是一个完全背包问题，对完全背包的一般写法进行变式即可。
+值得注意的是，对于法二翻译成递推并优化空间时，最终返回应该用取余操作来返回，而不是
+简单地返回最后一个元素。
 
+时间复杂度:O(n*amount)。其中n为coins的长度。
+时间复杂度:O(amount)。若采用记忆化搜索，则为O(n*amount)。
+"""
+from typing import List
+from functools import cache
+
+class Solution:
+    def unbounded_knapsack(w, v, capcity):
+        @cache
+        def dfs(i, c):
+            if i < 0:
+                return 0
+            if c < w[i]:
+                return dfs(i-1, c)
+            return max(dfs(i-1, c), dfs(i, c) + v[i])
+        return dfs(len(w)-1, capcity)
+        
+
+    def change(self, amount: int, coins: List[int]) -> int:
+        # 法一
+        # @cache
+        # def dfs(i, c):
+        #     if i < 0:
+        #         if c == 0:
+        #             return 1
+        #         else:
+        #             return 0
+        #     if c < coins[i]:
+        #         return dfs(i-1, c)
+        #     return dfs(i-1, c) + dfs(i, c-coins[i])
+
+        # ans = dfs(len(coins)-1, amount)
+        # return ans
+
+        # 法二
+        f = []
+        for i in range(2):
+            f.append([0] * (amount + 1))
+        f[0][0] = 1
+
+        for i, x in enumerate(coins):
+            for j in range(amount + 1):
+                if j < x:
+                    f[(i+1)%2][j] = f[i%2][j]
+                else:
+                    f[(i+1)%2][j] = f[i%2][j] + f[(i+1)%2][j-x]
+        # 这种写法会报错，比如amount=5，coins=[2,5]时，因为最后i是为1，(1+1)%2=0，
+        # 所以最后的答案是在f[0]中的，如果取-1会取到f[1]，就会导致错误，因此为了稳妥，
+        # 以后返回时都用取余操作
+        # return f[-1][-1]
+        return f[(len(coins))%2][amount]
 ```
 
 6.[279. 完全平方数](https://leetcode.cn/problems/perfect-squares/)
 
 ```python
+"""
+思路：
+该题的意思是给一个数n，用一些完全平方数去填充他，数量要尽可能少，因为有1的存在，
+所以一定是能填充完的，最后的判断可写可不写。完全平方数可以选若干个，所以是完全背包
+问题。然后是构建nums，可以观察到，完全平方数肯定是要不大于n的，所以可以用一个while
+循环去构造nums，选数的数量要尽可能小，因此递归函数返回一个min，将v[i]改为1代表选了
+一个数，当c==0时返回0以不影响结果，其他情况返回math.inf方便后面取min时不影响。
+值得注意的是，这里需要加dfs.cache_clear()，否则内存会爆。对于优化空间复杂度，
+在行的角度上优化成两个即可。本题最核心的难点是要将问题抽象成用nums中的数来构造n，
+且要能用while循环构造nums。
 
+时间复杂度:O(n^(3/2))=O(n^(1/2)*n)。其中n^(1/2)为nums的长度，构造nums时复杂度为O(n^(1/2))，被吸收掉。
+空间复杂度:O(n)。若采用记忆化搜索或不优化空间复杂度时，则为O(n^(3/2))。
+"""
+from functools import cache
+import math
+
+class Solution:
+    def numSquares(self, n: int) -> int:
+        # 法一
+        # nums = []
+        # i = 1
+        # while i ** 2 <= n:
+        #     nums.append(i ** 2)
+        #     i += 1
+
+        # @cache
+        # def dfs(i, c):
+        #     if i < 0:
+        #         if c == 0:
+        #             return 0
+        #         else:
+        #             return math.inf
+        #     if c < nums[i]:
+        #         return dfs(i-1, c)
+        #     return min(dfs(i-1, c), dfs(i, c-nums[i]) + 1)
+
+        # ans = dfs(len(nums)-1, n)
+        # # 若不加dfs.cache_clear()，则557/589 cases passed (N/A)，Memory Limit Exceeded
+        # dfs.cache_clear()
+        # if ans == math.inf:
+        #     return -1
+        # else:
+        #     return ans
+
+        # 法二
+        nums = []
+        i = 1
+        while i ** 2 <= n:
+            nums.append(i ** 2)
+            i += 1
+
+        f = []
+        for i in range(2):
+            f.append([math.inf] * (n+1))
+        f[0][0] = 0
+
+        for i, x in enumerate(nums):
+            for j in range(n+1):
+                if j < x:
+                    f[(i+1)%2][j] = f[i%2][j]
+                else:
+                    f[(i+1)%2][j] = min(f[i%2][j], f[(i+1)%2][j-x] + 1)
+
+        ans = f[len(nums)%2][n]
+        if ans == math.inf:
+            return -1
+        else:
+            return ans
 ```
 
 ### 最长公共子序列-LCS
