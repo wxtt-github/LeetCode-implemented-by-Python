@@ -4119,13 +4119,153 @@ class Solution:
 1.[1143. 最长公共子序列](https://leetcode.cn/problems/longest-common-subsequence/)
 
 ```python
+"""
+思路：
+法一：记忆化搜索
+判断两字符串的最长公共子序列，需要想到动态规划，定义一个dfs(i, j)的递归函数，
+我们从后往前遍历，边界条件是当i<0或j<0时，返回0，若text1[i]和text2[j]相等，
+则返回dfs(i-1, j-1) + 1，否则我们就返回一个max，要么i下标减一，要么j下标减一。
 
+时间复杂度:O(n*m)，其中n为text1的长度，m为text2的长度
+空间复杂度:O(n*m)
+
+法二：翻译成递推且优化空间复杂度
+这里正常初始化f，首先初始长度是法一的下标加一，又因为等式两边i，j都加一，所以得到
+新的长度。另外需要注意的是，观察法一，我们需要拿到text1[i]和text2[j]，
+因此我们遍历时都用enumerate来遍历，然后正常用对2取余的方法优化行空间复杂度即可。
+
+时间复杂度:O(n*m)，其中n为text1的长度，m为text2的长度
+空间复杂度:O(m)
+"""
+from functools import cache
+
+class Solution:
+    def longestCommonSubsequence(self, text1: str, text2: str) -> int:
+        # 法一
+        # @cache
+        # def dfs(i, j):
+        #     if i < 0 or j < 0:
+        #         return 0
+        #     if text1[i] == text2[j]:
+        #         return dfs(i-1, j-1) + 1
+        #     return max(dfs(i-1, j), dfs(i, j-1))
+        
+        # return dfs(len(text1)-1, len(text2)-1)
+
+        # 法二
+        f = []
+        for i in range(2):
+            f.append([0] * (len(text2) + 1))
+
+        for i, x in enumerate(text1):
+            for j, y in enumerate(text2):
+                if x == y:
+                    f[(i+1)%2][j+1] = f[i%2][j] + 1
+                else:
+                    f[(i+1)%2][j+1] = max(f[i%2][j+1], f[(i+1)%2][j])
+
+        return f[len(text1)%2][len(text2)]
 ```
 
 2.[72. 编辑距离](https://leetcode.cn/problems/edit-distance/)
 
 ```python
+"""
+思路：
+法一：记忆化搜索
+word1="ros"      word2="ros"
+不需要动，需要操作0次，然后左右两边各删一个
+word1="ros"      word2="ro"
+需要左边删除一个，需要操作1次
+word1="ro"       word2="ros"
+需要左边添加一个，等价于右边删除一个，需要操作1次
+word1="roe"      word2="ros"
+需要左/右边替换一个，需要操作1次
+word1="...ros"   word2="ros"
+word1="ros"      word2="...ros"
+在处理完末尾字符串后，需要操作len(...)次
 
+观察完上面的规律后，设置一个dfs递归函数，传入i和j，代表两个word的当前
+处理下标，若word1或word2处理完，则需要额外加上另一剩余字符串的长度。
+当两字符相同时，无需操作，我们直接两边递归到下标减一即可。然后我们返回
+一个min，要么左边删除，要么右边删除，要么替换，然后加上1的操作次数。
+
+时间复杂度:O(n*m)。其中n为word1的长度，m为word2的长度
+空间复杂度:O(n*m)
+
+法二：翻译成递推
+问题的关键在于f的初始化，首先初始长度为len(word1)和len(word2)，
+然后两下标为了防止越界均加一，因此最终长度为len(word1)+1和len(word2)+1，
+然后是处理边界条件，这里翻译不能翻译成j+1，因为两个方法i，j的含义不同，
+法一的含义是下标，法二的含义是长度，例如f[0][1]要变成f[0][0]，实际上要
+1次操作，f[0][0]变成f[0][0]，实际要0次操作，因此初始化时不能加一，后面
+正常翻译即可。
+
+时间复杂度:O(n*m)。其中n为word1的长度，m为word2的长度
+空间复杂度:O(n*m)
+
+法三：翻译成递推并优化空间复杂度
+这里的关键依旧在于f的初始化，正常我们是把行固定设置为2，但是如果这样的话，
+对于f[i%2][0] = i，我们就不好初始化了，因为会一直覆盖，导致缺失信息，
+因此我们必须在后面边遍历边初始化，这里也是有讲究的，因为后面我们的赋值操作
+实际上会用到f[(i+1)%2],具体是min中的f[(i+1)%2][j]项，
+所以我们需要在循环中进行初始化，此时行下标初始化从1开始，但是无需担心，
+因为在外面我们已经初始化过f[0]
+
+时间复杂度:O(n*m)。其中n为word1的长度，m为word2的长度
+空间复杂度:O(m)
+"""
+from functools import cache
+
+class Solution:
+    def minDistance(self, word1: str, word2: str) -> int:
+        # 法一
+        # @cache
+        # def dfs(i, j):
+        #     if i < 0:
+        #         return j+1
+        #     if j < 0:
+        #         return i+1
+        #     if word1[i] == word2[j]:
+        #         return dfs(i-1, j-1)
+        #     return min(dfs(i-1, j), dfs(i, j-1), dfs(i-1, j-1)) + 1
+
+        # return dfs(len(word1)-1, len(word2)-1)
+
+        # 法二
+        # f = []
+        # for i in range(len(word1) + 1):
+        #     f.append([0] * (len(word2) + 1))
+        # for j in range(len(word2) + 1):
+        #     f[0][j] = j
+        # for i in range(len(word1) + 1):
+        #     f[i][0] = i
+
+        # for i, x in enumerate(word1):
+        #     for j, y in enumerate(word2):
+        #         if x == y:
+        #             f[i+1][j+1] = f[i][j]
+        #         else:
+        #             f[i+1][j+1] = min(f[i][j+1], f[i+1][j], f[i][j]) + 1
+
+        # return f[len(word1)][len(word2)]
+
+        # 法三
+        f = []
+        for i in range(2):
+            f.append([0] * (len(word2) + 1))
+        for j in range(len(word2) + 1):
+            f[0][j] = j
+
+        for i, x in enumerate(word1):
+            f[(i+1)%2][0] = i+1
+            for j, y in enumerate(word2):
+                if x == y:
+                    f[(i+1)%2][j+1] = f[i%2][j]
+                else:
+                    f[(i+1)%2][j+1] = min(f[i%2][j+1], f[(i+1)%2][j], f[i%2][j]) + 1
+
+        return f[len(word1)%2][len(word2)]
 ```
 
 ### 最长递增子序列-LIS
@@ -4133,19 +4273,227 @@ class Solution:
 1.[300. 最长递增子序列](https://leetcode.cn/problems/longest-increasing-subsequence/)
 
 ```python
+"""
+思路：
+法一：定义一个dfs(i, x)，i代表下标，x代表一个记录数，必须要比这个数小，
+才可以加入到序列中，但是这个写法由于x的存在，无法翻译成递推，并且时间，
+内存均会爆，不推荐
 
+时间复杂度:O(n^2)
+空间复杂度:O(n^2)
+
+法二：定义一个dfs(i)，代表以i下标为结尾的严格递增子序列的长度，那么实际上
+dfs(i)是取决于前面的最大dfs(j)，然后再加1的(这里的j<i)，也就是比如
+10，9，2，5，3这个序列，对于以3为结尾，实际上其dfs取决于以2为结尾的dfs再加1。
+那么我们可以设定一个res=0，然后遍历所有i之前的数，若nums[j] < nums[i]，
+则拿到res = max(res, dfs(j))，然后我们再将res+1，用来代表dfs(i)那部分，
+然后进行返回。最后我们遍历整个nums的下标，去找到最大的dfs
+
+时间复杂度:O(n^2)
+空间复杂度:O(n)
+
+法三：翻译成递推，这里注意第二层循环用range来进行翻译，以及res+=1的翻译
+
+时间复杂度:O(n^2)
+空间复杂度:O(n)
+
+法四：贪心+二分查找
+定义g[i]表示当长度为i+1时的上升子序列的末尾元素的最小值。
+nums=[1, 6, 7, 2, 4, 5, 3]
+g = [1]
+g = [1, 6]
+g = [1, 6, 7]
+g = [1, 2, 7]
+g = [1, 2, 4]
+g = [1, 2, 4, 5]
+g = [1, 2, 3, 5]
+最终推演出的g的长度就是最长严格递增子序列的长度，核心是我们要尽可能的维护
+最小值，以让其有空间增长，g不代表真正的最长严格递增子序列，但是长度是一致的。
+因此衍生成，我们初始化一个g，从bisect模块引入bisect_left，这个函数的作用是
+从数组中找到第一个>=x的下标，我们遍历nums中的数i，然后在g中进行二分查找，
+若找到的下标j等于g的长度，说明这个数比g所有的数都大，那么我们就将其append进g中，
+若能找到，我们就将其替换，g[j] = i，最后我们返回len(g)即可
+
+时间复杂度:O(n*logn)
+空间复杂度:O(n)
+
+法五：贪心+二分查找+优化空间复杂度
+观察法四知道g是一个严格递增的数组，因此我们初始化g的长度为0，然后在nums中
+进行原地替换，若j == length，则进行长度加一的操作，最后返回length。
+
+时间复杂度:O(n*logn)
+空间复杂度:O(1)
+"""
+from typing import List
+from functools import cache
+import math
+from bisect import bisect_left
+
+class Solution:
+    def lengthOfLIS(self, nums: List[int]) -> int:
+        # 法一
+        # @cache
+        # def dfs(i, x):
+        #     if i < 0:
+        #         return 0
+        #     if nums[i] >= x:
+        #         return dfs(i-1, x)
+        #     return max(dfs(i-1, x), dfs(i-1, nums[i]) + 1)
+
+        # ans = dfs(len(nums)-1, math.inf)
+        # # 52/56 cases passed (N/A)，Time Limit Exceeded
+        # # dfs.cache_clear()
+        # # 若不用，24/56 cases passed (N/A)，Memory Limit Exceeded
+        # return ans
+
+        # 法二
+        # @cache
+        # def dfs(i):
+        #     res = 0
+        #     for j in range(i):
+        #         if nums[j] < nums[i]:
+        #             res = max(res, dfs(j))
+        #     res += 1
+        #     return res
+        # ans = 0
+        # for i in range(len(nums)):
+        #     ans = max(ans, dfs(i))
+        # return ans
+
+        # 法三
+        # f = [0] * len(nums)
+        # for i, x in enumerate(nums):
+        #     for j in range(i):
+        #         if nums[j] < x:
+        #             f[i] = max(f[i], f[j])
+        #     f[i] += 1
+        # return max(f)
+
+        # 法四，贪心+二分查找
+        # g = []
+        # for i in nums:
+        #     j = bisect_left(g, i)
+        #     if j == len(g):
+        #         g.append(i)
+        #     else:
+        #         g[j] = i
+        # return len(g)
+
+        # 法四，贪心+二分查找+优化空间复杂度
+        length = 0
+        for i in nums:
+            j = bisect_left(nums, i, 0, length)
+            nums[j] = i
+            if j == length:
+                length += 1
+        return length
 ```
 
 2.[1671. 得到山形数组的最少删除次数](https://leetcode.cn/problems/minimum-number-of-removals-to-make-mountain-array/)
 
 ```python
+"""
+思路：
+山形数组满足，峰顶左边是一个严格单增的序列，峰顶右边是一个严格单减的序列，
+且峰顶左右两边必须要有元素，那么我们就转换为，以峰顶为支点，求以峰顶结尾
+的单增序列最大长度，以及以峰顶开始的单减序列最大长度，这两个序列长度相加
+减一即为山形数组的长度，另外，求单减序列最大长度，其实可以从后往前遍历，转换
+成求单增序列的最大长度。
 
+我们设置一个pre和suf，长度为len(nums)，分别代表以nums[i]为结尾的单增序列
+最大长度以及以nums[i]为开始的单减序列最大长度。由上题300，我们已经学会借助
+g，以及bisect_left来求单增序列最大长度的贪心+二分搜索的方法，时间复杂度是
+O(n*logn)，我们通过二分搜索的j下标来得知pre[i]和nums[i]，并且当其长度均
+大于等于2时，代表其能构成山形数组，遍历计算求max即可得到最大山形数组的长度，
+然后用len(nums)减去即可得到最少删除次数。
+
+时间复杂度:O(n*logn)
+空间复杂度:O(n)
+"""
+from typing import List
+from bisect import bisect_left
+
+class Solution:
+    def minimumMountainRemovals(self, nums: List[int]) -> int:
+        pre = [0] * len(nums)
+        suf = [0] * len(nums)
+
+        g = []
+        for i, x in enumerate(nums):
+            j = bisect_left(g, x)
+            if j == len(g):
+                g.append(x)
+            else:
+                g[j] = x
+            pre[i] = j + 1
+
+        g = []
+        for i in range(len(nums)-1, -1, -1):
+            j = bisect_left(g, nums[i])
+            if j == len(g):
+                g.append(nums[i])
+            else:
+                g[j] = nums[i]
+            suf[i] = j + 1
+
+        res = 0
+        for i in range(len(nums)):
+            if pre[i] >= 2 and suf[i] >= 2:
+                res = max(res, pre[i] + suf[i] - 1)
+
+        return len(nums) - res
 ```
 
 3.[1626. 无矛盾的最佳球队](https://leetcode.cn/problems/best-team-with-no-conflicts/)
 
 ```python
+"""
+思路：
+首先我们需要将scores和ages一起排序，可以用sorted结合zip实现，问题就转换成
+求以第i个球员为结尾时，得分的最长子序列，同时要满足年龄要小于等于的关系，
+因为得分已经被排成从低到高了，因此若年龄反过来比他大，则不能将其加入序列中，
+由此可以仿照300题的动态规划实现。
 
+时间复杂度:O(n^2)
+空间复杂度:O(n)
+
+进阶地，还有基于值域计算以及树状数组优化的方法，可以进一步优化时间复杂度，
+但不属于动态规划的章节，暂时不将其放入。
+"""
+from typing import List
+from functools import cache
+
+class Solution:
+    def bestTeamScore(self, scores: List[int], ages: List[int]) -> int:
+        # 法一
+        # players = sorted(zip(scores, ages))
+
+        # @cache
+        # def dfs(i):
+        #     res = 0
+        #     for j in range(i):
+        #         if players[j][1] <= players[i][1]:
+        #             res = max(res, dfs(j))
+        #     res += players[i][0]
+        #     return res
+
+        # ans = 0
+        # for i in range(len(scores)):
+        #     ans = max(ans, dfs(i))
+        # return ans
+
+        # 法二
+        players = sorted(zip(scores, ages))
+
+        f = [0] * len(scores)
+
+        for i, x in enumerate(players):
+            for j in range(i):
+                if players[j][1] <= players[i][1]:
+                    f[i] = max(f[i], f[j])
+            f[i] += players[i][0]
+
+        return max(f)
 ```
 
 ### 状态机-DP-买卖股票系列
