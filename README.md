@@ -4501,37 +4501,470 @@ class Solution:
 1.[122. 买卖股票的最佳时机 II](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-ii/)
 
 ```python
+"""
+思路：
+法一：记忆化搜索
+这是一个状态机DP问题，问题的关键在于，定义出一个dfs(i, hold)的递归函数，它代表
+在第i天的时候，你持有/不持有该天股票的利润，我们从后往前思考，第i天的利润实际取决于
+第i天是否持有股票的状态以及前i-1天的利润，那么我们就能得到下面两个递归关系式。
+dfs(i, True) = max(dfs(i-1, True), dfs(i-1, False) - prices[i])
+dfs(i, False) = max(dfs(i-1, False), dfs(i-1, True) + prices[i])
+以第一个例子来说，若第i天持有股票，则第i-1天我们也持有股票，则代表什么也没做，若第i-1天我们
+没持有股票，则说明我们买了第i天的股票，因此第i天的利润要减去prices[i]。同时，我们要合理地
+设定边界条件，考虑dfs(-1, True)和dfs(-1, False)的值，这两个的初始值实际上决定了后面
+dfs(0, True)和dfs(0, False)的值，我们可以知道dfs(0, True) = -prices[0]，dfs(0, False) = 0。
+那么根据关系式，比如dfs(0, False) = max(dfs(-1, False), dfs(-1, True) + prices[0])，
+那么我们就能得出dfs(-1, False) = 0，dfs(-1, True) = -math.inf。
+设置好初始值后，正常编写记忆化搜索方法的代码即可。
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+
+法二：翻译成递推
+这里需要注意的是，因为是dfs(i, hold)，所以要初始二维数组，且hold只有两种值，因此
+第二维度的长度为2。
+
+时间复杂度:O(n)
+空间复杂度:O(n)
+
+法三：翻译成递推+优化空间复杂度
+正常用对2取余的方法将行空间复杂度优化成O(1)即可
+
+时间复杂度:O(n)
+空间复杂度:O(1)
+"""
+from typing import List
+from functools import cache
+import math
+
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        # 法一
+        # @cache
+        # def dfs(i, hold):
+        #     if i < 0:
+        #         if hold:
+        #             return -math.inf
+        #         else:
+        #             return 0
+        #     if hold:
+        #         return max(dfs(i-1, True), dfs(i-1, False) - prices[i])
+        #     else:
+        #         return max(dfs(i-1, False), dfs(i-1, True) + prices[i])
+
+        # return dfs(len(prices)-1, False)
+
+        # 法二
+        # f = []
+        # for i in range(len(prices) + 1):
+        #     f.append([0] * 2)
+
+        # f[0][1] = -math.inf
+        # f[0][0] = 0
+
+        # for i, x in enumerate(prices):
+        #     f[i+1][1] = max(f[i][1], f[i][0] - x)
+        #     f[i+1][0] = max(f[i][0], f[i][1] + x)
+
+        # return f[len(prices)][0]
+
+        # 法三
+        f = []
+        for i in range(2):
+            f.append([0] * 2)
+
+        f[0][1] = -math.inf
+        f[0][0] = 0
+
+        for i, x in enumerate(prices):
+            f[(i+1)%2][1] = max(f[i%2][1], f[i%2][0] - x)
+            f[(i+1)%2][0] = max(f[i%2][0], f[i%2][1] + x)
+
+        return f[len(prices)%2][0]
 ```
 
 2.[309. 买卖股票的最佳时机含冷冻期](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-cooldown/)
 
 ```python
+"""
+思路：
+相比122题，本题多了一个冷冻期的概念，即前一天刚卖完第二天不能马上买入，因此，我们考虑
+dfs(i, True)的情况，第i天是持有的，则仅会从两种状态转移而来，一种是第i-1天就已经持有，
+无任何动作，一种是第i-2天就已经未持有，且第i-1天也未持有(因为冷冻期的存在)，然后第i天
+购入转移而来，由此可以得到新递推式。需要注意的是，翻译成递推时由于i-2的存在，因此等式左右
+两边加二，在优化空间复杂度时，我们需要对3进行取余。
 
+时间复杂度:O(n)
+空间复杂度:O(1)
+"""
+from typing import List
+from functools import cache
+import math
+
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        # 法一
+        # @cache
+        # def dfs(i, hold):
+        #     if i < 0:
+        #         if hold:
+        #             return -math.inf
+        #         else:
+        #             return 0
+        #     if hold:
+        #         return max(dfs(i-1, True), dfs(i-2, False) - prices[i])
+        #     else:
+        #         return max(dfs(i-1, False), dfs(i-1, True) + prices[i])
+
+        # return dfs(len(prices)-1, False) 
+        
+        # 法二
+        # f = []
+        # for i in range(len(prices) + 2):
+        #     f.append([0] * 2)
+        # f[0][1] = f[1][1] = -math.inf
+        # f[0][0] = f[1][0] = 0
+
+        # for i, x in enumerate(prices):
+        #     f[i+2][1] = max(f[i+1][1], f[i][0] - x)
+        #     f[i+2][0] = max(f[i+1][0], f[i+1][1] + x)
+
+        # return f[len(prices)+1][0]
+
+        # 法三
+        f = []
+        for i in range(3):
+            f.append([0] * 2)
+        f[0][1] = f[1][1] = -math.inf
+        f[0][0] = f[1][0] = 0
+
+        for i, x in enumerate(prices):
+            f[(i+2)%3][1] = max(f[(i+1)%3][1], f[i%3][0] - x)
+            f[(i+2)%3][0] = max(f[(i+1)%3][0], f[(i+1)%3][1] + x)
+
+        return f[(len(prices)+1)%3][0]
 ```
 
 3.[188. 买卖股票的最佳时机 IV](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-iv/)
 
 ```python
+"""
+思路：
+对于至多完成k笔交易的情况，是122题的变式，关键在于，我们需要改造dfs(i, hold)，
+添加一个变量j，来记录还有多少次交易可发生。设置一个dfs(i, j, hold)，由于一买
+一卖算作一次交易，因此我们可以仅在买或者卖时，进行j-1的操作，同时要注意这里的边界
+条件，需要将j < 0的情况写在i < 0 的情况前面，因为观察递推式，为了不影响递推式求
+max，我们需要当j < 0时初始化成-inf，并且后面翻译成递推时，也要注意初始化。
 
+优化第0维的空间复杂度后
+时间复杂度:O(n*k)。其中n为prices的长度
+空间复杂度:O(k)
+"""
+from typing import List
+from functools import cache
+import math
+
+class Solution:
+    def maxProfit(self, k: int, prices: List[int]) -> int:
+        # 法一
+        # @cache
+        # def dfs(i, j, hold):
+        #     # 注意j < 0的条件要写在前面，否则当i, j < 0时会返回0，导致初始条件错误
+        #     if j < 0:
+        #         return -math.inf
+        #     if i < 0:
+        #         if hold:
+        #             return -math.inf
+        #         else:
+        #             return 0
+        #     if hold:
+        #         return max(dfs(i-1, j, True), dfs(i-1, j-1, False) - prices[i])
+        #     else:
+        #         return max(dfs(i-1, j, False), dfs(i-1, j, True) + prices[i])
+
+        # return dfs(len(prices)-1, k, False)
+
+        # 法二
+        # f = []
+        # for i in range(len(prices) + 1):
+        #     temp = []
+        #     for j in range(k + 2):
+        #         temp.append([-math.inf] * 2)
+        #     f.append(temp)
+
+        # # 从1开始是因为，当j == 0时是-inf，不能错误初始化
+        # for i in range(1, k + 2):
+        #     f[0][i][0] = 0
+
+        # for i, x in enumerate(prices):
+        #     for j in range(k + 1):
+        #         f[i+1][j+1][1] = max(f[i][j+1][1], f[i][j][0] - x)
+        #         f[i+1][j+1][0] = max(f[i][j+1][0], f[i][j+1][1] + x)
+
+        # return f[len(prices)][k+1][0]
+
+        # 法三
+        f = []
+        for i in range(2):
+            temp = []
+            for j in range(k + 2):
+                temp.append([-math.inf] * 2)
+            f.append(temp)
+
+        # 从1开始是因为，当j == 0时是-inf，不能错误初始化
+        for i in range(1, k + 2):
+            f[0][i][0] = 0
+
+        for i, x in enumerate(prices):
+            for j in range(k + 1):
+                f[(i+1)%2][j+1][1] = max(f[i%2][j+1][1], f[i%2][j][0] - x)
+                f[(i+1)%2][j+1][0] = max(f[i%2][j+1][0], f[i%2][j+1][1] + x)
+
+        return f[len(prices)%2][k+1][0]
 ```
 
 4.[714. 买卖股票的最佳时机含手续费](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/)
 
 ```python
+"""
+思路：
+122题的变式，在递推方程中加入fee即可
 
+时间复杂度:O(n)
+空间复杂度:O(1)
+"""
+from typing import List
+from functools import cache
+import math
+
+class Solution:
+    def maxProfit(self, prices: List[int], fee: int) -> int:
+        # 法一
+        # @cache
+        # def dfs(i, hold):
+        #     if i < 0:
+        #         if hold:
+        #             return -math.inf
+        #         else:
+        #             return 0
+        #     if hold:
+        #         return max(dfs(i-1, True), dfs(i-1, False) - prices[i] - fee)
+        #     else:
+        #         return max(dfs(i-1, False), dfs(i-1, True) + prices[i])
+
+        # return dfs(len(prices)-1, False)
+
+        # 法二
+        f = []
+        for i in range(2):
+            f.append([0] * 2)
+
+        f[0][1] = -math.inf
+
+        for i, x in enumerate(prices):
+            f[(i+1)%2][1] = max(f[i%2][1], f[i%2][0] - x - fee)
+            f[(i+1)%2][0] = max(f[i%2][0], f[i%2][1] + x)
+
+        return f[len(prices)%2][0]
 ```
 
 5.[2826. 将三个组排序](https://leetcode.cn/problems/sorting-three-groups/)
 
 ```python
+"""
+思路：
+法一：贪心+二分搜索
+之前题300我们已经学会用g数组搭配bisect_left来求最大严格递增子序列长度，
+这里求非递减，改为bisect_right即可，最后返回len(nums) - len(g)即可。
 
+时间复杂度:O(n*logn)
+空间复杂度:O(n)
+
+法二：dfs(i)的动态规划
+从后往前的顺序，定义dfs(i)为以nums[i]为结尾的最大非递减子序列长度，然后设置一个
+for j in range(i)的判断遍历，逐渐累加，最后根据nums中的每个元素求一次取最大即可。
+
+时间复杂度:O(n^2)
+空间复杂度:O(n)
+
+法三：dfs(i, j)的动态规划
+观察法二我们发现，按照法二的定义，我们还需要去遍历nums中的每个元素，导致时间复杂度
+过高，没有利用到nums中的元素是一个枚举量的性质，因此我们改变dfs的定义，定义dfs(i, j)
+为下标0-i，且最大元素<=j的最大非递减子序列长度。我们按照从后往前的顺序，考虑nums[i]，
+若nums[i] > j，则我们无法添加nums[i]进序列中，因为这个dfs求的长度要满足序列中每个元素
+都要<=j，若nums[i] <= j，我们可以将其添加进序列中，也可以不将其添加进序列中，因此
+我们可以得到dfs(i, j) = max(dfs(i-1, j), dfs(i-1, nums[i]) + 1)的关系式，然后是
+边界条件的设置，考虑dfs(0, 1)，dfs(0, 2)，dfs(0, 3)，若nums=[2]，则根据定义我们可以
+知道第一个为0，后两个为1，因为当j = 1 < 2，因此dfs(0, 1) = dfs(-1, 1)，
+而根据递推关系式有如下两行方程：
+dfs(0, 2) = max(dfs(-1, 2), dfs(-1, 2) + 1)，
+dfs(0, 3) = max(dfs(-1, 3), dfs(-1, 2) + 1)，
+因此我们可以推出当i < 0时，赋值为0即可。
+
+时间复杂度:O(n)。因为j只有3种可能，是O(1)复杂度的
+空间复杂度:O(n)
+
+法四：翻译成递推
+这里翻译时注意，虽然j只有3种可能，但是由于下标是从1开始的，所以第二维度长度可以初始化成4
+
+时间复杂度:O(n)
+空间复杂度:O(n)
+
+法五：翻译成递推+优化空间复杂度
+正常利用对2取余的方法优化行空间复杂度即可
+
+时间复杂度:O(n)
+空间复杂度:O(1)
+"""
+from typing import List
+from bisect import bisect_right
+from functools import cache
+
+class Solution:
+    def minimumOperations(self, nums: List[int]) -> int:
+        # 法一
+        # g = []
+        # for i, x in enumerate(nums):
+        #     j = bisect_right(g, x)
+        #     if j == len(g):
+        #         g.append(x)
+        #     else:
+        #         g[j] = x
+
+        # return len(nums) - len(g)
+
+        # 法二
+        # @cache
+        # def dfs(i):
+        #     res = 0
+        #     for j in range(i):
+        #         if nums[j] <= nums[i]:
+        #             res = max(res, dfs(j))
+        #     res += 1
+        #     return res
+        # ans = 0
+        # for i in range(len(nums)):
+        #     ans = max(ans, dfs(i))
+        # return len(nums) - ans
+
+        # 法三
+        # @cache
+        # def dfs(i, j):
+        #     if i < 0:
+        #         return 0
+        #     if j < nums[i]:
+        #         return dfs(i-1, j)
+        #     else:
+        #         return max(dfs(i-1, j), dfs(i-1, nums[i]) + 1)
+
+        # return len(nums) - dfs(len(nums)-1, 3)
+
+        # 法四
+        # f = []
+        # for i in range(len(nums) + 1):
+        #     f.append([0] * 4)
+
+        # for i, x in enumerate(nums):
+        #     for j in range(1, 4):
+        #         if j < x:
+        #             f[i+1][j] = f[i][j]
+        #         else:
+        #             f[i+1][j] = max(f[i][j], f[i][x] + 1)
+
+        # return len(nums) - f[len(nums)][3]
+
+        # 法四
+        f = []
+        for i in range(2):
+            f.append([0] * 4)
+
+        for i, x in enumerate(nums):
+            for j in range(1, 4):
+                if j < x:
+                    f[(i+1)%2][j] = f[i%2][j]
+                else:
+                    f[(i+1)%2][j] = max(f[i%2][j], f[i%2][x] + 1)
+
+        return len(nums) - f[len(nums)%2][3]
 ```
 
 6.[2786. 访问数组中的位置使分数最大](https://leetcode.cn/problems/visit-array-positions-to-maximize-score/)
 
 ```python
+"""
+思路：
+法一：记忆化搜索
+这题是要求必须选nums[0]，因此采用从前到后的顺序，问题的核心在于，比如我们已经选了
+nums[0]，那么子问题可以转化为，在后面的序列中选一个由奇数开始的序列，或者是选一个
+由偶数开始的序列，其中若是选一个开始元素的奇偶性与nums[0]不同的序列时，需要减去x。
+理解了这层，我们可以定义一个dfs(i, j)，代表从i开始选一个序列，这个序列的开始元素
+需要满足奇偶性与j相同，j只有0和1两种可能。那么比如说我们选了nums[0]，接下来要考虑
+dfs(1, 0)和dfs(1, 1)的情况，根据定义，不管是dfs(1, 0)还是dfs(1, 1)，我们选的
+第一个数都要满足其j代表的奇偶性，因此若nums[i]与j的奇偶性不同时，我们就直接跳过，
+若不跳过则违背了定义，就会报错。而当我们遇到奇偶性与j相同的数时，我们肯定要选它，
+因为不会产生x的损耗，同时下一步问题就是考虑在i+1的序列中，继续选一个开始元素与j
+相同奇偶性的序列，或是选一个开始元素与j不同奇偶性的序列，注意当不同时，还要减去x，
+即可。
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+
+法二：翻译成递推
+因为记忆化搜索是从前往后的，因此递推是从后往前的，我们遍历nums的下标，从后往前，
+然后进行翻译即可。
+
+时间复杂度:O(n)
+空间复杂度:O(n)
+
+法三：翻译成递推+优化空间复杂度
+对于行，可以用对2取余的方法优化成O(1)的空间复杂度
+
+时间复杂度:O(n)
+空间复杂度:O(1)
+"""
+from typing import List
+from functools import cache
+
+class Solution:
+    def maxScore(self, nums: List[int], x: int) -> int:
+        # 法一
+        # @cache
+        # def dfs(i, j):
+        #     if i == len(nums):
+        #         return 0
+        #     if nums[i] % 2 != j:
+        #         return dfs(i+1, j)
+        #     else:
+        #         return max(dfs(i+1, j), dfs(i+1, j ^ 1) - x) + nums[i]
+
+        # return dfs(0, nums[0] % 2)
+
+        # 法二
+        # f = []
+        # for i in range(len(nums) + 1):
+        #     f.append([0] * 2)
+
+        # for i in range(len(nums)-1, -1, -1):
+        #     for j in range(2):
+        #         if nums[i] % 2 != j:
+        #             f[i][j] = f[i+1][j]
+        #         else:
+        #             f[i][j] = max(f[i+1][j], f[i+1][j^1] - x) + nums[i]
+
+        # return f[0][nums[0] % 2]
+
+        f = []
+        for i in range(2):
+            f.append([0] * 2)
+
+        for i in range(len(nums)-1, -1, -1):
+            for j in range(2):
+                if nums[i] % 2 != j:
+                    f[i%2][j] = f[(i+1)%2][j]
+                else:
+                    f[i%2][j] = max(f[(i+1)%2][j], f[(i+1)%2][j^1] - x) + nums[i]
+
+        return f[0][nums[0] % 2]
 ```
 
 ### 区间-DP
@@ -4539,31 +4972,302 @@ class Solution:
 1.[516. 最长回文子序列](https://leetcode.cn/problems/longest-palindromic-subsequence/)
 
 ```python
+"""
+思路：
+法一：先将s进行反转得到s2，然后求s和s2的最长公共子序列长度
+求最长公共子序列，分别从两字符串末尾下标进行递归即可。
 
+时间复杂度:O(n^2)
+空间复杂度:O(n^2)
+
+法二："选与不选"的思想，从字符串首和尾出发
+定义一个dfs(i, j)的递归函数，从首和尾出发，当i>j时返回0，
+当i==j时返回1，当s[i]==s[j]时进行递归，最后如果不相等时，
+我们返回一个max，要么i后移一位，要么j前移一位。
+
+时间复杂度:O(n^2)
+空间复杂度:O(n^2)
+
+法三：将法二翻译成递推
+创建一个二维数组，这里不需要进行加一操作，具体看后面操作理解。
+初始化长度均为len(s)，观察两个递推式，可以发现f[i]由f[i+1]得到，
+f[j]由f[j-1]得到，因此对于i我们要倒序遍历，对于j我们要正序遍历，
+对于二维数组初始化，观察边界条件，我们先初始化全为0，然后在遍历
+i时将i==j的情况初始化成1。需要注意的是，对于j的遍历条件，需要保证
+j是大于i的，这是由于定义决定的，由于j范围的控制，使得i+1也不会越界，
+因此这里初始化长度设为len(s)即可。
+
+时间复杂度:O(n^2)
+空间复杂度:O(n^2)
+
+法三：翻译成递推+优化空间复杂度
+观察递推式，f[i]仅由f[i+1]和f[i]决定，可以用对2取余的方法优化行空间复杂度。
+
+时间复杂度:O(n^2)
+空间复杂度:O(n)
+"""
+from functools import cache
+
+class Solution:
+    def longestPalindromeSubseq(self, s: str) -> int:
+        # 法一
+        # s2 = s[::-1]
+        # @cache
+        # def dfs(i, j):
+        #     if i < 0 or j < 0:
+        #         return 0
+        #     if s[i] == s2[j]:
+        #         return dfs(i-1, j-1) + 1
+        #     return max(dfs(i-1, j), dfs(i, j-1))
+        # return dfs(len(s)-1, len(s2)-1)
+
+        # 法二
+        # @cache
+        # def dfs(i, j):
+        #     if i > j:
+        #         return 0
+        #     if i == j:
+        #         return 1
+        #     if s[i] == s[j]:
+        #         return dfs(i+1, j-1) + 2
+        #     return max(dfs(i+1, j), dfs(i, j-1))
+        # return dfs(0, len(s)-1)
+
+        # 法三
+        # length = len(s)
+
+        # f = []
+        # for i in range(length):
+        #     f.append([0] * length)
+
+        # for i in range(length-1, -1, -1):
+        #     f[i][i] = 1
+        #     # 这里要注意j一定要比i大，且由于j范围的控制，使得i+1不会越界
+        #     for j in range(i+1, length):
+        #         if s[i] == s[j]:
+        #             f[i][j] = f[i+1][j-1] + 2
+        #         else:
+        #             f[i][j] = max(f[i+1][j], f[i][j-1])
+        # return f[0][length-1]
+
+        # 法四
+        length = len(s)
+
+        f = []
+        for i in range(2):
+            f.append([0] * length)
+
+        for i in range(length-1, -1, -1):
+            f[i%2][i] = 1
+            # 这里要注意j一定要比i大，且由于j范围的控制，使得i+1不会越界
+            for j in range(i+1, length):
+                if s[i] == s[j]:
+                    f[i%2][j] = f[(i+1)%2][j-1] + 2
+                else:
+                    f[i%2][j] = max(f[(i+1)%2][j], f[i%2][j-1])
+        return f[0][length-1]
 ```
 
 2.[1039. 多边形三角剖分的最低得分](https://leetcode.cn/problems/minimum-score-triangulation-of-polygon/)
 
 ```python
+"""
+思路：
+法一：记忆化搜索
+题目要求对多边形进行剖分，剖分成的若干三角形的顶点乘积之和的最小值即为答案。
+考虑一个多边形，假定其第一个顶点序号为i，末尾顶点序号为j，首先其满足i < j，
+如果i + 1 == j，说明其是一条直线，乘积为0，不构成多边形，如果i + 2 == j,
+说明是一个三角形，直接返回其顶点乘积即可，如果是一个边数大于等于4的多边形，
+我们需要对其进行分割，我们可以从i+1到j-1的范围进行遍历，得到k，则问题就转换
+成了dfs(i, j) = dfs(i, k) + dfs(k, j) + v[i] * v[k] * v[j]的问题，题目要求
+取最小，则加个min即可。
 
+时间复杂度:O(n^3)。dfs结点数为n^2个，单次操作经过for k的遍历，单词操作复杂度是O(n)
+空间复杂度:O(n^2)
+
+法二：翻译成递推
+dfs(i, j)，因此创建一个二维数组。另外需要注意的是，由于i < k，f[i][j]取决于f[k][j]，
+因此i需要倒序遍历，k < j，f[i][j]取决于f[i][k]，因此j需要正序遍历，并且i < j,
+我们在遍历j时可以通过for j in range(i+1, len(values))来实现，我们还需要处理i + 1 == j
+的情况，我们在初始化时已经默认初始化为0，那我们就控制j从i+2开始，防止0被覆盖的错误情况即可。
+
+时间复杂度:O(n^3)
+空间复杂度:O(n^2)
+"""
+from typing import List
+from functools import cache
+import math
+
+class Solution:
+    def minScoreTriangulation(self, values: List[int]) -> int:
+        # 法一
+        @cache
+        def dfs(i, j):
+            if i + 1 == j:
+                return 0
+            if i + 2 == j:
+                return values[i] * values[i+1] * values[i+2]
+            ans = math.inf
+            for k in range(i+1, j):
+                ans = min(ans, dfs(i, k) + dfs(k, j) + values[i] * values[k] * values[j])
+            return ans
+
+        return dfs(0, len(values)-1)
+
+        # 法二
+        # f = []
+        # for i in range(len(values)):
+        #     f.append([0] * len(values))
+
+        # for i in range(len(values), -1, -1):
+        #     for j in range(i+2, len(values)):
+        #         ans = math.inf
+        #         for k in range(i+1, j):
+        #             ans = min(ans, f[i][k] + f[k][j] + values[i] * values[k] * values[j])
+        #         f[i][j] = ans
+        # return f[0][len(values)-1]
 ```
 
 3.[3040. 相同分数的最大操作数目 II](https://leetcode.cn/problems/maximum-number-of-operations-with-the-same-score-ii/)
 
 ```python
+"""
+思路：
+题目要求进行若干删除操作，删除数的和都是相同的，求其最大可操作数。
+核心在于理解，删除前两个元素代表问题从0-(n-1)的规模缩小至2-(n-1)，
+删除后两个元素代表从0-(n-1)的规模缩小至0-(n-3)，以此类推。
+我们定义一个dfs(i, j, target)，i代表起始下标，j代表终止下标，
+dfs的定义是从i到j，操作删除数的和为target时，可操作的次数。
+处理边界情况，若i >= j时，即只有一个数或没有时，直接返回0，代表没有操作次数了。
+然后设置一个res，用于方便后面取max，对三种情况进行处理，+1代表操作了一次。
+最后求答案时对三种可能不同的初始情况进行求解，求个max即可。
 
+时间复杂度:O(n^2)。由于target取决于开始的三种情况，因此为O(1)
+空间复杂度:O(n^2)
+"""
+from typing import List
+from functools import cache
+
+class Solution:
+    def maxOperations(self, nums: List[int]) -> int:
+        @cache
+        def dfs(i, j, target):
+            if i >= j:
+                return 0
+            res = 0
+            if nums[i] + nums[i+1] == target:
+                res = max(res, dfs(i+2, j, target) + 1)
+            if nums[j-1] + nums[j] == target:
+                res = max(res, dfs(i, j-2, target) + 1)
+            if nums[i] + nums[j] == target:
+                res = max(res, dfs(i+1, j-1, target) + 1)
+
+            return res
+        
+        length = len(nums)
+        ans1 = dfs(2, length-1, nums[0] + nums[1])
+        ans2 = dfs(0, length-3, nums[length-1] + nums[length-2])
+        ans3 = dfs(1, length-2, nums[0] + nums[length-1])
+
+        return max(ans1, ans2, ans3) + 1
 ```
 
 4.[1771. 由子序列构造的最长回文串的长度](https://leetcode.cn/problems/maximize-palindrome-length-from-subsequences/)
 
 ```python
+"""
+思路：
+516.最长回文子序列的变式。由516题我们已知在一个字符串中求最大回文子串的
+方法，这里的关键是需要从word1和word2中都需要选出元素，因此首先我们将
+word1和word2进行合并，然后通过i < len(word1) <= j的条件进行答案更新
+的控制，确保答案是有效的，并且为了遍历所有情况，我们还需要适当跳过word1
+和word2的字符，因此有末尾的return max(dfs(i+1, j), dfs(i, j-1))。
 
+时间复杂度:O((n+m)^2)。因为末尾return的原因，因此状态个数有(n+m)^2个
+空间复杂度:O((n+m)^2)
+"""
+from functools import cache
+
+class Solution:
+    def longestPalindrome(self, word1: str, word2: str) -> int:
+        s = word1 + word2
+        ans = 0
+
+        @cache
+        def dfs(i, j):
+            if i > j:
+                return 0
+            if i == j:
+                return 1
+            if s[i] == s[j]:
+                res = dfs(i+1, j-1) + 2
+                if i < len(word1) <= j:
+                    nonlocal ans
+                    ans = max(ans, res)
+                return res
+            return max(dfs(i+1, j), dfs(i, j-1))
+
+        dfs(0, len(s)-1)
+        return ans
 ```
 
 5.[1000. 合并石头的最低成本](https://leetcode.cn/problems/minimum-cost-to-merge-stones/)
 
 ```python
+"""
+思路：
+例子：
+⚪⚪⚪⚪⚪⚪⚪
+k = 3
+有三种情况：
+1.将前1个合成1堆，后6个合成2堆
+2.将前3个合成1堆，后4个合成2堆
+3.将前5个合成1堆，后2个合成1堆
+经过这三种情况后，我们都可以得到k(3)堆，有了k堆，我们就可以将k堆合成1堆，
+并且移动成本为这3堆的石头之和，也就是sum(stones)，因为无论你怎么合成，将
+k堆合成1堆必定是sum(stones)的代价。现在我们的思路转变为，将石头首先合成k堆，
+然后再加上sum(stones)即可。
+定义dfs(i, j, p)为下标从i到j，将其合成p堆的最小代价。则有
+dfs(i, j, 1) = dfs(i, j, k) + sum(stones)
+dfs(i, j, p) = min(dfs(i, m, 1) + dfs(m+1, j, p-1))。其中m从0开始，每次加k-1，
+不超过j
 
+时间复杂度:O(n^3)。其中i和j复杂度为n，p复杂度为k，状态个数有n^2*p个，单个状态
+计算时间由于for m的存在，复杂度为n/k，因此时间复杂度为O(n^3)
+空间复杂度:O(n^2*p)
+
+进阶：优化dfs(i, j, p)中的p
+假定最终可以合并成一堆的情况，由
+dfs(i, j, 1) = dfs(i, j, k) + sum(stones)，
+dfs(i, j, p) = min(dfs(i, m, 1) + dfs(m+1, j, p-1))，
+对于第一种情况，p==1，对于第二种情况p>=2，因此对于第一种情况，j-i可以被k-1整除，
+而对于第二种情况，j-i不能被2整除，因此我们可以通过判断j-i是否可以被k-1整除，从而
+判断p==1还是p>=2，因此p实际上是多余的，可以被优化掉。
+
+时间复杂度:O(n^3/k)
+空间复杂度:O(n^2)
+"""
+from typing import List
+from functools import cache
+import math
+
+class Solution:
+    def mergeStones(self, stones: List[int], k: int) -> int:
+        if (len(stones) - 1) % (k - 1) != 0:
+            return -1
+
+        @cache
+        def dfs(i, j, p):
+            if i == j and p == 1:
+                return 0
+            if p == 1:
+                return dfs(i, j, k) + sum(stones[i:j+1])
+            res = math.inf
+            for m in range(i, j, k-1):
+                res = min(res, dfs(i, m, 1) + dfs(m+1, j, p-1))
+            return res
+
+        return dfs(0, len(stones)-1, 1)
 ```
 
 ### 树形-DP-直径系列
