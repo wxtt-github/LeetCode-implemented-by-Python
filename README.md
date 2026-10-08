@@ -5275,43 +5275,365 @@ class Solution:
 1.[543. 二叉树的直径](https://leetcode.cn/problems/diameter-of-binary-tree/)
 
 ```python
+"""
+思路：
+定义dfs为该结点所能提供的最大链长，链长指边数。
+因此一个结点能提供的最大链长取决于其左右子树所能提供的最大链长加一，
+因为不管是左子树或右子树到该结点需连接一条边。因此当我们遍历到None时，
+可以返回-1，这样对于其父结点，经过加一后就变为0。我们递归拿到其左右子树
+的最大链长，然后返回左右子树最大链长的较大值再加一，就是dfs的完整定义，
+另外由于要遍历完整个树的结点，因此可以增加一个ans，然后分别对每个结点
+的左右子树链长和再加二取max，即可得到答案。
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+    
+class Solution:
+    def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
+        ans = 0
+
+        def dfs(node):
+            if node is None:
+                return -1
+            left_length = dfs(node.left)
+            right_length = dfs(node.right)
+            nonlocal ans
+            ans = max(ans, left_length + right_length + 2)
+
+            return max(left_length, right_length) + 1
+
+        dfs(root)
+        return ans
 ```
 
 2.[124. 二叉树中的最大路径和](https://leetcode.cn/problems/binary-tree-maximum-path-sum/)
 
 ```python
+"""
+思路：
+543.二叉树的直径的变式，区别在于结点值有可能为负数，需要正确处理。
+定义dfs(node)为一个结点所能提供的最大路径和。
+则有，一个结点所能提供的最大路径和，为其左右子树的最大路径和的最大值(假定不为负数，
+若为负数则不选，相当于提供0即可)，再加上其结点的值即可。
+当结点为空时，返回0即可，然后我们取其左右子树的递归，为了保证负数不选，因此我们
+可以将其与0取个max，然后加上结点的值，这里注意，因为我们的定义是如果为负数，不如
+不选，也就是提供0，因此最后还要与0再取一个max，防止[2, -1]这种错误情况的发生。
+因为我们要遍历整个树，因此可以外置一个ans，然后在遍历过程中取max即可
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional
+import math
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+class Solution:
+    def maxPathSum(self, root: Optional[TreeNode]) -> int:
+        ans = -math.inf
+
+        def dfs(node):
+            if node is None:
+                return 0
+            left_length = dfs(node.left)
+            right_length = dfs(node.right)
+
+            nonlocal ans
+            ans = max(ans, left_length + right_length + node.val)
+
+            return max(max(left_length, right_length, 0) + node.val, 0)
+
+        dfs(root)
+        return ans
 ```
 
 3.[2246. 相邻字符不同的最长路径](https://leetcode.cn/problems/longest-path-with-different-adjacent-characters/)
 
 ```python
+"""
+思路：
+1245.树的直径题的变式，区别在于路径中不能有相邻结点相同。
+对于除根节点以外的结点，其相邻结点一定有一个父节点。因此为了求
+该节点所能提供的最大路径长度，实际上是求其子节点所能提供的最大
+路径长度再加1即可。
 
+首先我们要根据parent列表构造树，可以创建一个二维列表g，其元素
+为列表，代表着其下标对应节点所连接的子节点的下标。然后我们定义
+dfs(i)，代表该节点所能提供的最大路径长度，我们用for j in g[i]
+遍历其所有的子节点，取其dfs(j)，然后拿到其最大值，然后加一返回
+即可，这就完成了dfs的定义要求，若不加限制条件，如1245题只是求
+直径，则我们可以通过ans，在遍历整个树时求max_len+len的最大值，
+用来代表该节点的子节点所能提供的两个最大路径长度的路径和，最后
+再加一即可，而这里有限制，因此我们需要加上if s[j] != s[i]的条件
+进行控制。
+
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import List
+
+class Solution:
+    def longestPath(self, parent: List[int], s: str) -> int:
+        length = len(parent)
+        # 构造树，g中每个子列表代表其下标结点的子结点
+        g = [[] for _ in range(length)]
+
+        for i in range(1, length):
+            g[parent[i]].append(i)
+
+        ans = 0
+        def dfs(i):
+            max_len = 0
+            for j in g[i]:
+                len = dfs(j)
+                if s[j] != s[i]:
+                    nonlocal ans
+                    ans = max(ans, max_len + len)
+                    max_len = max(max_len, len)
+            return max_len + 1
+
+        dfs(0)
+        return ans+1
 ```
 
 4.[687. 最长同值路径](https://leetcode.cn/problems/longest-univalue-path/)
 
 ```python
+"""
+思路：
+题目要求返回一条路径的长度的最大值，这个路径要满足其上的所有节点的值均相同。
+核心在于定义dfs(node)，我们定义dfs(node)代表该节点所能提供的最大同值路径
+长度。对于空节点，返回0。然后是三种基本情况，若该节点存在左右子节点，且它们
+的值均相同，那我们返回dfs(node.left)+dfs(node.right)+2，若该节点存在左
+子节点且值相同，那我们返回dfs(node.left)+1，对于右子节点同理，若均不同，
+则我们返回0即可。同时，为了正确处理同值路径不经过根节点的情况，我们可以外置
+一个ans，在遍历树时不断更新其最大值即可，同时为了确保能正确遍历树的每个节点，
+我们可以通过left_length = dfs(node.left)，right_length = dfs(node.right)，
+这两行来保证遍历的正确性，另外还要注意在返回时，应当返回其左右子节点之一配合
+该节点能提供的最大同值路径，而不是错把dfs(node.left)+dfs(node.right)+2给返回了。
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+class Solution:
+    def longestUnivaluePath(self, root: Optional[TreeNode]) -> int:
+        ans = 0
+
+        def dfs(node):
+            nonlocal ans
+            if node is None:
+                return 0
+            res = 0
+            left_length = dfs(node.left)
+            right_length = dfs(node.right)
+            if node.left and node.right:
+                if node.val == node.left.val == node.right.val:
+                    ans = max(ans, left_length + right_length + 2)
+            if node.left:
+                if node.val == node.left.val:
+                    res = max(res, left_length + 1)
+            if node.right:
+                if node.val == node.right.val:
+                    res = max(res, right_length + 1)
+            
+            ans = max(ans, res)
+            return res
+
+        dfs(root)
+        return ans
 ```
 
 5.[3203. 合并两棵树后的最小直径](https://leetcode.cn/problems/find-minimum-diameter-after-merging-two-trees/)
 
 ```python
+"""
+思路：
+题目要求返回合并的两棵树的最小直径。用d1，d2分别表示两棵树的直径。
+分为三种情况，1.若d1远大于d2，则d2被吸收掉，合并后树的直径是d1，
+2.若d1远小于d2，则d1被吸收掉，合并后树的直径是d2，3.若d1，d2相差
+不大，且合并后确实会带来直径增加，则我们需要思考如何让合并后的树
+的直径较小，对于一棵树的直径，我们可以取其中点，这样到树的两端的
+距离都会较小，因此最好的办法是取两棵树的中点，然后将这两个中点连接
+起来，这样合并树的直径就变为了d1/2向上取整加上d2/2向上取整再加上
+连接边1。如此就解决了第一个核心问题，接下来是要写一个算法，计算树
+的直径，由2246.相邻字符不同的最长路径我们已经知道如何求二叉树的
+直径，我们可以通过一个二维数组g来构建二叉树，然后再通过dfs(i)来求二叉树，
+dfs的定义就是该节点所能返回的最大长度，进阶为求任意数的直径，我们
+还是通过一个二维数组g来构建树，每个元素代表该下标节点的相邻节点，
+然后我们可以通过dfs(i, fa)来求直径，fa代表其父节点，定义依然是该
+节点所能提供的最大长度，我们通过与fa进行比较来遍历其子节点，然后通过
+dfs(j, i)来递归获取其子节点能提供的最大长度，再加一即为该节点拼上
+子节点所能提供的最大长度，然后我们返回最大的max_length即可，这是为了
+满足dfs的定义，是第一步，然后为了求得直径，我们可以外置一个ans，在
+遍历过程中不断对max_length+length取最大，因为不管我们先遍历到最大长度
+还是遍历到次大长度，相加起来都是最大直径，这是第二步，分两步写会清晰点。
+最后我们从根节点开始遍历，返回ans即可
 
+时间复杂度:O(n+m)
+空间复杂度:O(n+m)
+"""
+from typing import List
+
+class Solution:
+    def minimumDiameterAfterMerge(self, edges1: List[List[int]], edges2: List[List[int]]) -> int:
+        def diameter(edges):
+            g = [[] for _ in range(len(edges)+1)]
+            for i, j in edges:
+                g[i].append(j)
+                g[j].append(i)
+
+            ans = 0
+            def dfs(i, fa):
+                nonlocal ans
+                max_length = 0
+                for j in g[i]:
+                    if j != fa:
+                        length = dfs(j, i) + 1
+                        ans = max(ans, max_length + length)
+                        max_length = max(max_length, length)
+                return max_length
+
+            dfs(0, -1)
+            return ans
+
+        d1 = diameter(edges1)
+        d2 = diameter(edges2)
+        return max(d1, d2, (d1 + 1) // 2 + (d2 + 1) // 2 + 1)
 ```
 
 6.[1617. 统计子树中城市之间最大距离](https://leetcode.cn/problems/count-subtrees-with-max-distance-between-cities/)
 
 ```python
+"""
+思路：
+题目要求求出距离从1到n-1的所有连通子树的数目。
+整体思路为，首先先构造子集，可以按"选与不选"的思路进行子集选择，然后针对这个子集，
+解决两个问题：
+1.这个子集是否连通
+2.若子集连通，求这个子集的直径d，然后记录直径d的子树数量加一
 
+首先我们根据edges建立树，序号可以改为从0开始。
+然后我们设置dfs(i)，写出"选与不选"思路的模板，可以设置一个in_set，用于记录选的节点，
+记得对于选情况，递归后需要恢复现场。然后是处理边界条件，当i==n时，我们求其直径。
+我们可以遍历in_set，随便找到一个存在的节点，从这里开始求其树直径。另外，为了方便判断
+子树是否连通，我们可以设置一个vis，在遍历中修改其值，最后通过判断vis和in_set是否相等，
+来判断是否遍历完了所有节点，也就代表是否连通，另外仅当res不为0时，我们才去修改ans。
+
+时间复杂度:O(n*2^n)。子集有2^n个，对于每个子集，求直径复杂度为O(n)
+空间复杂度:O(n)
+"""
+from typing import List
+
+class Solution:
+    def countSubgraphsForEachDiameter(self, n: int, edges: List[List[int]]) -> List[int]:
+        g = [[] for _ in range(n)]
+        for i, j in edges:
+            g[i-1].append(j-1)
+            g[j-1].append(i-1)
+
+        ans = [0] * (n-1)
+        in_set = [False] * n
+        def dfs(i):
+            if i == n:
+                vis = [False] * n
+                res = 0
+                for x, y in enumerate(in_set):
+                    if not y:
+                        continue
+                    def diameter(j):
+                        vis[j] = True
+                        nonlocal res
+                        max_length = 0
+                        for k in g[j]:
+                            if not vis[k] and in_set[k]:
+                                length = diameter(k) + 1
+                                res = max(res, max_length + length)
+                                max_length = max(max_length, length)
+                        return max_length
+                    diameter(x)
+                    break
+                if in_set == vis and res:
+                    ans[res-1] += 1
+                return
+
+            # 不选
+            dfs(i+1)
+
+            # 选
+            in_set[i] = True
+            dfs(i+1)
+            in_set[i] = False
+
+        dfs(0)
+        return ans
 ```
 
 7.[2538. 最大价值和与最小价值和的差值](https://leetcode.cn/problems/difference-between-maximum-and-minimum-price-sum/)
 
 ```python
+"""
+思路：
+首先定义路径为从一个节点出发不断向下延伸的道路。
+定义dfs返回两个东西，第一个是带叶子节点的最大路径和，第二个是不带叶子节点的最大路径和，
+注意这里的叶子指的都是向下找到的叶子。
 
+例子：
+        0 (10)
+       / \
+    (20)1  2(30)
+     / \     \
+(5)3 (15)4  (25)5
+需要注意要从底到上，从子节点归并到父节点
+
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import List
+
+class Solution:
+    def maxOutput(self, n: int, edges: List[List[int]], price: List[int]) -> int:
+        g = [[] for _ in range(n)]
+        for i in edges:
+            x, y = i
+            g[x].append(y)
+            g[y].append(x)
+
+        ans = 0
+        def dfs(i, fa):
+            nonlocal ans
+            max_s1 = price[i]
+            max_s2 = 0
+            for j in g[i]:
+                if j == fa:
+                    continue
+                s1, s2 = dfs(j, i)
+                ans = max(ans, max_s1 + s2, max_s2 + s1)
+                max_s1 = max(max_s1, s1 + price[i])
+                max_s2 = max(max_s2, s2 + price[i])
+            return max_s1, max_s2
+
+        dfs(0, -1)
+        return ans
 ```
 
 ### 树形-DP-最大独立集
@@ -5319,19 +5641,143 @@ class Solution:
 1.[337. 打家劫舍 III](https://leetcode.cn/problems/house-robber-iii/)
 
 ```python
+"""
+思路：
+题意要求选一些节点，且这些节点不能直接相连，然后求其和的最大值。
+因此对于单个节点来说，我们有选或不选的思路，考虑一个普通节点，若我们选它，
+那么其子节点都不能选，而对于其子节点的子节点，又可以选，也可以不选，因此
+问题的关键是，定义一个dfs，返回为选这个节点能返回的最大值以及不选这个节点
+能返回的最大值。对于空节点，返回0, 0即可，而对于一个普通节点，我们递归拿到
+其左右子树的dfs值，若选该节点，则将其值拼上两颗子树的不选值即可，若不选该
+节点，则求其子树选或不选的最大值拼起来即可，最后返回。
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+class Solution:
+    def rob(self, root: TreeNode | None) -> int:
+        def dfs(node):
+            if node is None:
+                return 0, 0
+
+            left_rob, left_not_rob = dfs(node.left)
+            right_rob, right_not_rob = dfs(node.right)
+
+            rob = node.val + left_not_rob + right_not_rob
+            not_rob = max(left_rob, left_not_rob) + max(right_rob, right_not_rob)
+
+            return rob, not_rob
+
+        return max(dfs(root))
 ```
 
 2.[1377. T 秒后青蛙的位置](https://leetcode.cn/problems/frog-position-after-t-seconds/)
 
 ```python
+"""
+思路：
+对于邻接表，首先创建一个g数组进行公式化建图，这里可以增加一个0节点，用来代表
+1的父亲。
+为了避免小数多次相乘导致的精度损失，我们可以统计分母prod后再取倒数。
+写一个dfs函数，参数首先是当前节点i，以及其父节点fa，剩余时间t，以及目前为止的分母prod，
+该问题的难点关键是边界条件，当i抵达target时，若此时正好剩余时间t为0，或者target刚好是个
+叶节点时，我们就可以修改ans，然后return。同时为了处理一种特殊情况，比如我们t仅有1，但是
+target离我们很远，也就是概率为0的特殊例子，我们要对dfs做正确的返回，不然其就会一直延伸
+下去，使得答案不为0，因此我们在之后增加一个对t==0的判断，直接返回，同时这也代表着，如果
+t>0，那我们就遍历i的子节点(通过fa来辅助判断)，然后递归dfs，最后返回ans即可。
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import List
+
+class Solution:
+    def frogPosition(self, n: int, edges: List[List[int]], t: int, target: int) -> float:
+        g = [[] for _ in range(n+1)]
+        g[1].append(0)
+
+        for x, y in edges:
+            g[x].append(y)
+            g[y].append(x)
+
+        ans = 0
+
+        def dfs(i, fa, t, prod):
+            if i == target and (t == 0 or len(g[i]) == 1):
+                nonlocal ans
+                ans = 1 / prod
+                return
+
+            if t == 0:
+                return
+
+            for j in g[i]:
+                if j != fa:
+                    dfs(j, i, t-1, prod * (len(g[i])-1))
+
+        dfs(1, 0, t, 1)
+        return ans
 ```
 
 3.[2646. 最小化旅行的价格总和](https://leetcode.cn/problems/minimize-the-total-price-of-the-trips/)
 
 ```python
+"""
+思路：
+题目大概是要求，给一些起始终止点的组合，然后你要得到路径，得到路径后适当地调整某些
+节点的价值，使得价值和最小。问题的关键在于，把这个复杂的流程，转变为，根据起始终止点，
+找到正确路径，从而可以根据所有的路径统计出每个节点的访问次数。有了所有节点的访问次数后，
+我们就要适当地选择某些节点取半，可以写一个dfs算法，随便从某个点开始，定义是返回该子树
+根节点不取半或取半所能返回最小价值和，然后最后以整棵树根节点取半或不取半的两种情况的最小值
+返回即可。
 
+时间复杂度:O(n*m)。其中m代表trips的长度
+空间复杂度:O(n)
+"""
+from typing import List
+
+class Solution:
+    def minimumTotalPrice(self, n: int, edges: List[List[int]], price: List[int], trips: List[List[int]]) -> int:
+        g = [[] for _ in range(n)]
+        for x, y in edges:
+            g[x].append(y)
+            g[y].append(x)
+
+        cnt = [0] * n
+        def dfs_cnt(i, fa, target):
+            if i == target:
+                cnt[target] += 1
+                return True
+
+            for j in g[i]:
+                if j != fa and dfs_cnt(j, i, target):
+                    cnt[i] += 1
+                    return True
+
+            return False
+
+        for start, end in trips:
+            dfs_cnt(start, -1, end)
+
+        def dfs_val(i, fa):
+            not_half = price[i] * cnt[i]
+            half = not_half // 2
+
+            for j in g[i]:
+                if j != fa:
+                    j_not_half, j_half = dfs_val(j, i)
+                    not_half += min(j_not_half, j_half)
+                    half += j_not_half
+
+            return not_half, half
+
+        return min(dfs_val(0, -1))
 ```
 
 ### 树形-DP-最小支配集
@@ -5339,7 +5785,58 @@ class Solution:
 1.[968. 监控二叉树](https://leetcode.cn/problems/binary-tree-cameras/)
 
 ```python
+"""
+思路:
+问题的核心在于，明确节点的三种互斥状态：
+1.该节点安装摄像头，自己监控自己
+2.该节点不安装摄像头，但其父节点安装摄像头，由父节点进行监控
+3.该节点不安装摄像头，但其子节点至少一个安装摄像头，由子节点进行监控
 
+定义dfs为，返回该子树根节点进行三种状态的选择时，所返回的最少摄像头总数。
+由此，我们先递归拿到其左右子树进行三种状态选择的最少摄像头总数，然后进行分类讨论：
+1.对于根节点，如果其进行安装摄像头，那么其子节点，也可以对应三种状态，因此对于根节点这棵树，
+对于安装摄像头的情况，数量就是choose = min(left_choose, left_by_fa, left_by_child) + 
+min(right_choose, right_by_fa, right_by_child) + 1
+2.对于根节点，如果其不安装摄像头，由其父节点监控，那么对于其子节点，就没有by_fa的状态了，
+因为其子节点的父节点已经明确不安装摄像头，那么对于根节点这棵树，对于by_fa的情况，数量就是
+by_fa = min(left_choose, left_by_child) + min(right_choose, right_by_child)
+3.对于根节点，如果其不安装摄像头，由其子节点监控，那么对于其子节点，至少要选择一个节点安装
+摄像头，因此我们可以选择左儿子安装，右儿子处于by_child的状态，也可以选择右儿子安装，左儿子
+处于by_child的状态，也可以左右儿子都安装，也就是都处于choose的状态，最后取最小值即可，也就是
+by_child = min(left_choose + right_by_child, left_by_child + right_choose, left_choose + right_choose)
+
+然后就是边界条件的设定，对于一个空节点，由于要取min，且不能安装，所以取math.inf，对于空节点
+处于另外两个状态时，可以直接取0，因为对于这两个状态的空节点，并不需要被监控。
+
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional
+import math
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+class Solution:
+    def minCameraCover(self, root: Optional[TreeNode]) -> int:
+        def dfs(node):
+            if node == None:
+                return math.inf, 0, 0
+            
+            left_choose, left_by_fa, left_by_child = dfs(node.left)
+            right_choose, right_by_fa, right_by_child = dfs(node.right)
+
+            choose = min(left_choose, left_by_fa, left_by_child) + min(right_choose, right_by_fa, right_by_child) + 1
+            by_fa = min(left_choose, left_by_child) + min(right_choose, right_by_child)
+            by_child = min(left_choose + right_by_child, left_by_child + right_choose, left_choose + right_choose)
+
+            return choose, by_fa, by_child
+
+        choose, _, by_child = dfs(root)
+        return min(choose, by_child)
 ```
 
 ### 单调栈
