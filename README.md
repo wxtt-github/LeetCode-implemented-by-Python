@@ -5844,55 +5844,362 @@ class Solution:
 1.[739. 每日温度](https://leetcode.cn/problems/daily-temperatures/)
 
 ```python
+"""
+思路：
+法一：从左到右
+从collections里引入栈deque，由于如果后面不存在更高温度，用0代替，因此我们初始化答案为0，
+然后我们遍历temperatures，如果说栈不为空，且当前遍历到的元素大于栈顶元素，那么我们就可以更新
+栈顶元素所对应的ans了，然后弹出后如果新的栈顶元素依然小于当前遍历的元素，则继续更新，更新完
+所有后，我们就将当前元素的下标添加进栈中即可。之所以能这么做是因为我们维护的deque实际上是一个
+非递增序列，那么只要我们遍历到一个稍大的元素，就可以从栈顶方向定向处理其较小的元素，如果说遍历的
+元素比栈顶的还小或者相等，那我们就将其添加进deque中即可。
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+
+法二：从右到左
+从右到左方法的本质，其实是要理解我们维护一个deque，如果说我们从后往前遍历，如果当前遍历的元素，
+大于或等于栈中顶部的某些元素，那我们就可以直接把这些元素弹出了，然后转而让当前遍历的元素进去，因为
+弹出的这些元素本质已经用不到了，有一个比他更大更靠前的元素已经覆盖掉他们的作用了。然后我们在弹出和
+插入操作之间，看看栈中是否还有元素，其实就是看看栈中是否有更大的元素，然后更新ans，最后进行插入操作
+即可。
+
+时间复杂度:O(n)
+空间复杂度:O(min(n, U))。其中U代表max(temperatures) - min(temperatures) + 1
+"""
+from collections import deque
+
+class Solution:
+    def dailyTemperatures(self, temperatures: list[int]) -> list[int]:
+        # 法一，从左到右
+        length = len(temperatures)
+        ans = [0] * length
+        q = deque()
+
+        for i, x in enumerate(temperatures):
+            while q and x > temperatures[q[-1]]:
+                j = q.pop()
+                ans[j] = i - j
+            q.append(i)
+
+        return ans
+
+        # 法二，从右到左
+        # length = len(temperatures)
+        # ans = [0] * length
+        # q = deque()
+
+        # for i in range(length-1, -1, -1):
+        #     while q and temperatures[i] >= temperatures[q[-1]]:
+        #         q.pop()
+        #     if q:
+        #         ans[i] = q[-1] - i
+        #     q.append(i)
+
+        # return ans
 ```
 
 2.[42. 接雨水](https://leetcode.cn/problems/trapping-rain-water/)
 
 ```python
+"""
+思路：单调栈
+问题的核心思路在于，维护一个严格递减的序列，当遍历到的新元素破坏了这个性质时，我们拿到
+当前栈顶元素b，以及当前栈顶元素的上一个元素a，结合当前遍历到的新元素c，来计算储水量，这个
+储水量的计算实际上等于，c下标减去a下标再减1，得到储水量的宽，然后用min(a, c)-b，得到高，
+最后相乘即为面积。
+例子：height = [0,1,0,2,1,0,1,3,2,1,2,1]，输出6
+从2，1，0序列开始，这是一个严格单减的序列，我们存入栈中，然后遍历到1，现在破坏了性质，
+我们处理1，0，1这三个数，把0pop出去，计算面积，ans加上1，然后是2，1，1这三个数，把中间的1pop出去，
+后两个数相等的情况下，由于min(2, 1) - 1 = 0，所以实际上ans是加0的，然后是2，1，3这三个数，
+把1pop出去，然后计算面积，ans加上3(3=(7-3-1)*1=(min(2,3)-1))。
 
+
+时间复杂度:O(n)
+空间复杂度:O(min(n, U))。其中U为max(height) - min(height) + 1
+"""
+from collections import deque
+
+class Solution:
+    def trap(self, height: list[int]) -> int:
+        ans = 0
+        q = deque()
+
+        for i, x in enumerate(height):
+            while q and x >= height[q[-1]]:
+                j = q.pop()
+                if not q:
+                    break
+                ans += (i - q[-1] - 1) * (min(x, height[q[-1]]) - height[j]) 
+            q.append(i)
+
+        return ans
 ```
 
 3.[496. 下一个更大元素 I](https://leetcode.cn/problems/next-greater-element-i/)
 
 ```python
+"""
+思路：
+由739. 每日温度我们已知如何对一个列表中的元素求其下一更大元素，只需利用一个栈deque，
+通过while q and i > q[-1]来维持栈的非递增性即可，如果破坏了，那就更新ans，需要注意的
+是，对于nums1中元素的处理，可以用一个哈希表来存储其值和下标，对于栈append的操作，也可以
+仅对nums1中的元素进行入栈处理，进而优化空间复杂度。
 
+时间复杂度:O(n+m)
+空间复杂度:O(n)
+"""
+from collections import deque
+
+class Solution:
+    def nextGreaterElement(self, nums1: list[int], nums2: list[int]) -> list[int]:
+        ans = [-1] * len(nums1)
+        index = {}
+        for i, x in enumerate(nums1):
+            index[x] = i
+
+        q = deque()
+        for i in nums2:
+            while q and i > q[-1]:
+                if q[-1] in index:
+                    ans[index[q[-1]]] = i
+                q.pop()
+            # q.append(i)
+            # 多做一个判断，可优化空间复杂度为O(n)
+            if i in index:
+                q.append(i)
+
+        return ans
 ```
 
 4.[503. 下一个更大元素 II](https://leetcode.cn/problems/next-greater-element-ii/)
 
 ```python
+"""
+思路：
+因为是循环数组，一个比较好的思路是，对nums处理两次，也就是复制一个nums拼在原
+nums后，这样ans中的每个元素都能得到处理，我们无需真的去复制，只需要用取余进行
+取数即可，然后利用deque栈进行单调性的维护，来计算下一更大元素即可。
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from collections import deque
+
+class Solution:
+    def nextGreaterElements(self, nums: list[int]) -> list[int]:
+        length = len(nums)
+        ans = [-1] * length
+        q = deque()
+
+        for i in range(2 * length):
+            while q and nums[i % length] > nums[q[-1]]:
+                ans[q[-1]] = nums[i % length]
+                q.pop()
+            if i < length:
+                q.append(i)
+
+        return ans
 ```
 
 5.[901. 股票价格跨度](https://leetcode.cn/problems/online-stock-span/)
 
 ```python
+"""
+思路：
+本题的关键在于，理解类方法的调用逻辑，是初始化后不断输入price，
+进而正确写出类的初始化，以及next方法。可以用一个栈来维护单调性，
+元素类型为元组，第一个为日期，第二个为price即可。
 
+时间复杂度:O(1)
+空间复杂度:O(min(q, U))，q为next的调用次数，U为price的范围
+"""
+from collections import deque
+
+class StockSpanner:
+    def __init__(self):
+        self.stack = deque()
+        self.current_day = -1
+
+    def next(self, price: int) -> int:
+        while self.stack and price >= self.stack[-1][1]:
+            self.stack.pop()
+        self.current_day += 1
+        self.stack.append((self.current_day, price))
+
+        if len(self.stack) > 1:
+            return self.current_day - self.stack[-2][0]
+        else:
+            return self.current_day + 1
 ```
 
 6.[1019. 链表中的下一个更大节点](https://leetcode.cn/problems/next-greater-node-in-linked-list/)
 
 ```python
+"""
+思路：
+正常遍历链表，stack中存入下标+值的元组即可，然后维持栈的单调性。
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import Optional, List
+from collections import deque
+
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+class Solution:
+    def nextLargerNodes(self, head: Optional[ListNode]) -> List[int]:
+        ans = []
+        stack = deque()
+
+        node = head
+        cnt = 0
+        while node != None:
+            ans.append(0)
+            while stack and node.val > stack[-1][1]:
+                j = stack.pop()
+                ans[j[0]] = node.val
+            stack.append((cnt, node.val))
+            cnt += 1
+            node = node.next
+
+        return ans
 ```
 
 7.[1944. 队列中可以看到的人数](https://leetcode.cn/problems/number-of-visible-people-in-a-queue/)
 
 ```python
+"""
+思路：
+根据题意，一个人无法越过一个高度和自己相同甚至更高的人看到下一个人。
+因此，我们可以维护一个单调栈，保持其严格递减性，若遍历到不满足该性质
+的元素，则进行处理，由于遍历到的元素更高，因此我们将栈中更矮的元素弹出，
+然后对应其下标对ans加一，与此同时，若栈中还有元素，比如对于11，10，6，5，8
+的情况，我们弹出5，6后，对5，6的ans进行了加一，还需要对10进行加一，然后再
+将8进行入栈。
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import List
+from collections import deque
+
+class Solution:
+    def canSeePersonsCount(self, heights: List[int]) -> List[int]:
+        length = len(heights)
+        ans = [0] * length
+        stack = deque()
+
+        for i, x in enumerate(heights):
+            while stack and x >= stack[-1][1]:
+                j = stack.pop()
+                ans[j[0]] += 1
+            if stack:
+                ans[stack[-1][0]] += 1
+            stack.append((i, x))
+
+        return ans
 ```
 
 8.[84. 柱状图中最大的矩形](https://leetcode.cn/problems/largest-rectangle-in-histogram/)
 
 ```python
+"""
+思路：
+本题的核心在于理解，能勾勒出的最大矩形，其中的高h必定为heights中的某个元素，
+理解了这个后，我们就可以遍历heights中的元素，固定其高h，然后尽可能地延长底的
+长度，从而计算面积，最后取最大即可，那么如何延长底的长度呢，由于高已经被固定，
+因此要想延长底，从左边延伸，则需要左边相邻的方块的高大于等于当前方块的高，从
+右边延伸，则需要右边相邻的方块的高大于等于当前方块的高。为了方便在遍历每个方块
+时快速计算面积，我们需要两个数组来辅助计算底，问题就转化成了，我们找出每个方块
+所对应的左边第一个小于的元素的下标l，找出每个方块所对应的右边第一个小于的元素的
+下标r，那么底的长度实际上就是r-l-1，因此我们初始化left以及right，这里注意初始化
+的初始值，对于left初始化成-1，对于right初始化成length，然后用单调栈的方法求即可。
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from collections import deque
+
+class Solution:
+    def largestRectangleArea(self, heights: list[int]) -> int:
+        ans = 0
+        length = len(heights)
+        left = [-1] * length
+        right = [length] * length
+
+        stack = deque()
+        for i, x in enumerate(heights):
+            while stack and x <= heights[stack[-1]]:
+                stack.pop()
+            if stack:
+                left[i] = stack[-1]
+            stack.append(i)
+
+        stack = deque()
+        for i, x in enumerate(heights):
+            while stack and x < heights[stack[-1]]:
+                j = stack.pop()
+                right[j] = i
+            stack.append(i)
+
+        for h, l, r in zip(heights, left, right):
+            ans = max(ans, h * (r - l - 1))
+
+        return ans
 ```
 
 9.[1793. 好子数组的最大分数](https://leetcode.cn/problems/maximum-score-of-a-good-subarray/)
 
 ```python
+"""
+思路：
+84. 柱状图中最大的矩形的变式，核心在于理解，分数的定义实际上是勾勒矩形的定义，
+由于min的存在，因此最大分数对应的矩形的高实际上会落到nums中的某个元素中，
+因此我们可以遍历nums中的每个元素，进而计算出每个元素固定时，不断延伸底的长度，
+所对应的最大面积，然后当底的左右两边下标满足k的范围时，我们就可以更新ans。
 
+时间复杂度:O(n)
+空间复杂度:O(n)
+"""
+from typing import List
+from collections import deque
+
+class Solution:
+    def maximumScore(self, nums: List[int], k: int) -> int:
+        length = len(nums)
+        res = [0] * length
+        left = [-1] * length
+        right = [length] * length
+
+        stack = deque()
+        for i, x in enumerate(nums):
+            while stack and x <= nums[stack[-1]]:
+                stack.pop()
+            if stack:
+                left[i] = stack[-1]
+            stack.append(i)
+
+        stack = deque()
+        for i, x in enumerate(nums):
+            while stack and x < nums[stack[-1]]:
+                j = stack.pop()
+                right[j] = i
+            stack.append(i)
+
+        for i in range(length):
+            res[i] = nums[i] * (right[i] - left[i] - 1)
+
+        ans = 0
+        for i in range(length):
+            if left[i] < k and right[i] > k:
+                ans = max(ans, res[i])
+
+        return ans
 ```
 
 ### 单调队列
